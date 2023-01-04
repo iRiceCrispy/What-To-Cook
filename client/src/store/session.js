@@ -49,7 +49,7 @@ export const signup = createAsyncThunk(
         username,
         email,
         password,
-        confirm_password: confirmPassword,
+        confirmPassword,
       });
 
       return res.data.user;

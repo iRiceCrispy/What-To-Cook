@@ -22,7 +22,7 @@ const SignupForm = () => {
         navigate('/');
       })
       .catch((err) => {
-        if (err.csrf_token) {
+        if (err.csrfToken) {
           alert('Something went wrong when submitting the form. Please try again.');
         }
         else {
@@ -84,7 +84,7 @@ const SignupForm = () => {
               value={confirmPassword}
               onChange={e => setConfirmPassword(e.target.value)}
             />
-            <p>{errors.confirm_password}</p>
+            <p>{errors.confirmPassword}</p>
           </div>
         </div>
       </main>
