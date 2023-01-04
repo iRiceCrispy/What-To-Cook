@@ -20,7 +20,7 @@ const LoginForm = () => {
         navigate('/');
       })
       .catch((err) => {
-        if (err.csrf_token) {
+        if (err.csrfToken) {
           alert('Something went wrong when submitting the form. Please try again.');
         }
         else {
@@ -38,7 +38,7 @@ const LoginForm = () => {
         navigate('/');
       })
       .catch((err) => {
-        if (err.csrf_token) {
+        if (err.csrfToken) {
           alert('Something went wrong when submitting the form. Please try again.');
         }
         else {
