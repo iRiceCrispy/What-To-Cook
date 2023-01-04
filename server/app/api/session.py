@@ -7,7 +7,7 @@ from app.util.demo import Demo
 session = Blueprint('session', __name__)
 
 
-@session.route('')
+@session.get('')
 def authenticate():
     """
     Authenticates a user.
@@ -18,7 +18,7 @@ def authenticate():
         return {'user': None}
 
 
-@session.route('/login', methods=['POST'])
+@session.post('/login')
 def login():
     """
     Logs a user in
@@ -39,7 +39,7 @@ def login():
         return {'errors': form.errors}, 401
 
 
-@session.route('/demo', methods=['POST'])
+@session.post('/demo')
 def demo():
     """
     Logs in as demo user
@@ -58,7 +58,7 @@ def demo():
         return {'errors': form.errors}, 401
 
 
-@session.route('/signup', methods=['POST'])
+@session.post('/signup')
 def sign_up():
     """
     Creates a new user and logs them in
@@ -83,7 +83,7 @@ def sign_up():
         return {'errors': form.errors}, 401
 
 
-@session.route('', methods=['DELETE'])
+@session.delete('')
 def logout():
     """
     Logs a user out
