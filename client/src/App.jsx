@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { getIngredients } from './store/ingredients';
-import { restoreSession } from './store/session';
+import { getUserIngredients } from './store/userIngredients';
+import { restoreSession, getSessionUser } from './store/session';
 import Splash from './pages/Splash';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 
 const App = () => {
   const dispatch = useDispatch();
+  const sessionUser = useSelector(getSessionUser);
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
@@ -18,6 +20,10 @@ const App = () => {
       setIsLoaded(true);
     })();
   }, [dispatch]);
+
+  useEffect(() => {
+    if (sessionUser) dispatch(getUserIngredients(sessionUser.id));
+  }, [dispatch, sessionUser]);
 
   return isLoaded && (
     <div className="App">
