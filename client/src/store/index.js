@@ -1,11 +1,13 @@
 import { configureStore } from '@reduxjs/toolkit';
-import session from './session';
 import ingredients from './ingredients';
+import session from './session';
+import userIngredients from './userIngredients';
 
 const store = configureStore({
   reducer: {
-    ingredients,
     session,
+    ingredients,
+    userIngredients,
   },
 });
 
