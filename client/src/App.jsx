@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { Navigate, Route, Routes } from 'react-router-dom';
+import { getIngredients } from './store/ingredients';
 import { restoreSession } from './store/session';
 import Splash from './pages/Splash';
 import Login from './pages/Login';
@@ -11,10 +12,11 @@ const App = () => {
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    dispatch(restoreSession())
-      .then(() => {
-        setIsLoaded(true);
-      });
+    (async () => {
+      await dispatch(restoreSession());
+      await dispatch(getIngredients());
+      setIsLoaded(true);
+    })();
   }, [dispatch]);
 
   return isLoaded && (
