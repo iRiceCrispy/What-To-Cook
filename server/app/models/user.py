@@ -23,9 +23,17 @@ class User(db.Model, UserMixin):
     def check_password(self, password):
         return check_password_hash(self.password, password)
 
-    def to_dict(self):
+    def to_safe_dict(self):
         return {
             'id': self.id,
             'username': self.username,
             'email': self.email
+        }
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'username': self.username,
+            'email': self.email,
+            'ingredients': [ingredient.to_dict() for ingredient in self.ingredients]
         }
