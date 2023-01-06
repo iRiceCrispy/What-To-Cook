@@ -19,6 +19,15 @@ export const addUserIngredients = createAsyncThunk(
   },
 );
 
+export const removeUserIngredients = createAsyncThunk(
+  'user/ingredients/remove',
+  async ({ userId, ingredients }) => {
+    const res = await axios.delete(`/api/users/${userId}/ingredients`, { data: { ingredients } });
+
+    return res.data.ingredients;
+  },
+);
+
 const userIngredientsAdapter = createEntityAdapter();
 const initialState = userIngredientsAdapter.getInitialState();
 
@@ -28,7 +37,8 @@ const userIngredientsSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(getUserIngredients.fulfilled, userIngredientsAdapter.setAll)
-      .addCase(addUserIngredients.fulfilled, userIngredientsAdapter.setAll);
+      .addCase(addUserIngredients.fulfilled, userIngredientsAdapter.setAll)
+      .addCase(removeUserIngredients.fulfilled, userIngredientsAdapter.setAll);
   },
 });
 
