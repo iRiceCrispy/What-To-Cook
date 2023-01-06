@@ -13,7 +13,7 @@ def authenticate():
     Authenticates a user.
     """
     if current_user.is_authenticated:
-        return {'user': current_user.to_dict()}
+        return {'user': current_user.to_safe_dict()}
     else:
         return {'user': None}
 
@@ -34,7 +34,7 @@ def login():
 
         login_user(user)
 
-        return {'user': user.to_dict()}
+        return {'user': user.to_safe_dict()}
     else:
         return {'errors': form.errors}, 401
 
@@ -53,7 +53,7 @@ def demo():
 
         login_user(user)
 
-        return {'user': user.to_dict()}
+        return {'user': user.to_safe_dict()}
     else:
         return {'errors': form.errors}, 401
 
@@ -78,7 +78,7 @@ def sign_up():
 
         login_user(user)
 
-        return {'user': user.to_dict()}
+        return {'user': user.to_safe_dict()}
     else:
         return {'errors': form.errors}, 401
 
