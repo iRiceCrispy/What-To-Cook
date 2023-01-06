@@ -17,7 +17,12 @@ const Navigation = () => {
         </div>
         <div>
           {sessionUser
-            ? (<Profile user={sessionUser} />)
+            ? (
+              <>
+                <Link to="/dashboard">Dashboard</Link>
+                <Profile user={sessionUser} />
+              </>
+            )
             : (
               <>
                 <Link className="btn" to="/login">Log In</Link>

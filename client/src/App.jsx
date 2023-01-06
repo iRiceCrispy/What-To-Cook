@@ -7,6 +7,7 @@ import { restoreSession, getSessionUser } from './store/session';
 import Splash from './pages/Splash';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
+import Dashboard from './pages/Dashboard';
 
 const App = () => {
   const dispatch = useDispatch();
@@ -39,6 +40,10 @@ const App = () => {
         <Route
           path="/signup"
           element={<Signup />}
+        />
+        <Route
+          path="/dashboard"
+          element={<Dashboard />}
         />
         <Route
           path="*"

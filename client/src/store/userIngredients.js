@@ -10,6 +10,15 @@ export const getUserIngredients = createAsyncThunk(
   },
 );
 
+export const addUserIngredients = createAsyncThunk(
+  'user/ingredients/add',
+  async ({ userId, ingredients }) => {
+    const res = await axios.post(`/api/users/${userId}/ingredients`, { ingredients });
+
+    return res.data.ingredients;
+  },
+);
+
 const userIngredientsAdapter = createEntityAdapter();
 const initialState = userIngredientsAdapter.getInitialState();
 
@@ -17,7 +26,9 @@ const userIngredientsSlice = createSlice({
   name: 'user/ingredients',
   initialState,
   extraReducers: (builder) => {
-    builder.addCase(getUserIngredients.fulfilled, userIngredientsAdapter.setAll);
+    builder
+      .addCase(getUserIngredients.fulfilled, userIngredientsAdapter.setAll)
+      .addCase(addUserIngredients.fulfilled, userIngredientsAdapter.setAll);
   },
 });
 
