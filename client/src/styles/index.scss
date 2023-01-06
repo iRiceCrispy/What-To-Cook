@@ -1,0 +1,81 @@
+@use "./variables" as *;
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+html,
+body,
+#root,
+.App {
+  height: 100%;
+}
+
+body {
+  line-height: 1.5;
+  background-color: $base-color;
+  color: $text-color;
+}
+
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+}
+
+input:focus {
+  outline: none;
+}
+
+ul {
+  list-style: none;
+}
+
+a {
+  text-decoration: none;
+}
+
+a.underline {
+  text-decoration: underline;
+}
+
+.btn {
+  cursor: pointer;
+  user-select: none;
+  padding: 8px 16px;
+  background-color: $base-color3;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.btn:hover {
+  filter: brightness(75%);
+}
+
+.btn.transparent {
+  background-color: transparent;
+}
+
+.btn.border {
+  border: 1px solid $border-color;
+}
