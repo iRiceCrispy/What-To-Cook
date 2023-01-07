@@ -1,0 +1,30 @@
+.profileContainer {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+
+  .profileMenu {
+    min-width: 250px;
+    padding: 12px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    border-radius: 4px;
+    box-shadow: 0 0 8px black;
+    position: absolute;
+    z-index: 1;
+    top: calc(100% + 4px);
+    right: 0;
+
+    .menuItem {
+      width: 100%;
+      margin: 0;
+      padding: 12px 24px;
+      font-size: 13px;
+      font-weight: bold;
+      text-align: start;
+    }
+  }
+}

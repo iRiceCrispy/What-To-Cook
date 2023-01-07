@@ -6,7 +6,7 @@ import axios from 'axios';
 import { camelizeKeys, decamelizeKeys } from 'humps';
 import App from './App';
 import store from './store';
-import './index.css';
+import './styles/index.scss';
 
 axios.defaults.headers.common['Content-Type'] = 'application/json';
 axios.defaults.transformRequest.unshift(data => decamelizeKeys(data));

@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { logout } from '../../../store/session';
+import './Profile.scss';
 
 const Profile = ({ user }) => {
   const dispatch = useDispatch();
@@ -39,18 +40,18 @@ const Profile = ({ user }) => {
       </button>
       {showMenu && (
         <div className="profileMenu">
-          <p>
+          <p className="menuItem">
             Username:
             {' '}
             {user.username}
           </p>
-          <p>
+          <p className="menuItem">
             Email:
             {' '}
             {user.email}
           </p>
           <button
-            className="btn transparent logout"
+            className="btn transparent menuItem"
             type="button"
             onClick={handleLogout}
           >

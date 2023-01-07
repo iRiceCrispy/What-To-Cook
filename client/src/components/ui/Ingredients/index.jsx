@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { ingredientsSelectors } from '../../../store/ingredients';
 import { getSessionUser } from '../../../store/session';
 import { addUserIngredients, removeUserIngredients, userIngredientsSelectors } from '../../../store/userIngredients';
+import './index.scss';
 
 const Ingredients = () => {
   const dispatch = useDispatch();
@@ -13,6 +14,8 @@ const Ingredients = () => {
   const [removeList, setRemoveList] = useState([]);
   const [input, setInput] = useState('');
   const [edit, setEdit] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
+  const ref = useRef(null);
 
   const options = ingredientList.filter(il => il.name.includes(input)
     && !ingredients.some(i => i.id === il.id)
@@ -36,123 +39,140 @@ const Ingredients = () => {
     reset();
   };
 
+  useEffect(() => {
+    const closeMenu = (e) => {
+      if (ref.current && !ref.current.contains(e.target)) setShowMenu(false);
+    };
+
+    document.addEventListener('click', closeMenu);
+
+    return () => document.removeEventListener('click', closeMenu);
+  }, []);
+
   return (
     <div className="ingredients">
       {edit && (
         <>
-          <div className="searchIngredients">
-            <input value={input} onChange={e => setInput(e.target.value)} />
-            <ul className="options">
-              All ingredients:
-              {options.map(option => (
+          <div className="searchIngredients" ref={ref}>
+            <input
+              className="input"
+              value={input}
+              onClick={() => setShowMenu(!showMenu)}
+              onChange={e => setInput(e.target.value)}
+            />
+            {showMenu && (
+              <ul className="options">
+                {options.map(option => (
+                  <li
+                    className="option"
+                    key={option.id}
+                    role="menuitem"
+                    tabIndex={0}
+                    onClick={() => setAddList(prev => [...prev, option])}
+                  >
+                    <span>(+)</span>
+                    {option.verified && <span>✔️</span>}
+                    <span>{option.name}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+          <div className="addList">
+            <p>To be added:</p>
+            <ul className="ingredientList">
+              {addList.map(ingredient => (
                 <li
-                  className="option"
-                  key={option.id}
+                  className="ingredient"
+                  key={ingredient.id || ingredient.name}
                   role="menuitem"
                   tabIndex={0}
-                  onClick={() => setAddList(prev => [...prev, option])}
+                  onClick={() => setAddList(prev => prev.filter(i => i.name !== ingredient.name))}
                 >
-                  <span>{option.name}</span>
-                  {' '}
-                  {option.verified && <span>✔️</span>}
-                  {' '}
-                  <span> +</span>
+                  <span>(-)</span>
+                  <span>{ingredient.name}</span>
+                  {ingredient.verified && <span>✔️</span>}
                 </li>
               ))}
             </ul>
           </div>
-          <ul className="addList">
-            To be added:
-            {addList.map(item => (
-              <li
-                className="item"
-                key={item.id || item.name}
-                role="menuitem"
-                tabIndex={0}
-                onClick={() => setAddList(prev => prev.filter(i => i.name !== item.name))}
-              >
-                <span>{item.name}</span>
-                {' '}
-                {item.verified && <span>✔️</span>}
-                {' '}
-                <span> -</span>
-              </li>
-            ))}
-          </ul>
-          <ul className="removeList">
-            To be removed:
-            {removeList.map(item => (
-              <li
-                className="item"
-                key={item.id}
-                role="menuitem"
-                tabIndex={0}
-                onClick={() => setRemoveList(prev => prev.filter(i => i.name !== item.name))}
-              >
-                <span>{item.name}</span>
-                {' '}
-                {item.verified && <span>✔️</span>}
-                {' '}
-                <span> +</span>
-              </li>
-            ))}
-          </ul>
+          <div className="removeList">
+            <p>To be removed:</p>
+            <ul className="ingredientList">
+              {removeList.map(ingredient => (
+                <li
+                  className="ingredient"
+                  key={ingredient.id}
+                  role="menuitem"
+                  tabIndex={0}
+                  onClick={() => setRemoveList(prev => prev
+                    .filter(i => i.name !== ingredient.name))}
+                >
+                  <span>(+)</span>
+                  <span>{ingredient.name}</span>
+                  {ingredient.verified && <span>✔️</span>}
+                </li>
+              ))}
+            </ul>
+          </div>
         </>
       )}
-      <ul className="ingredientList">
-        My ingredients:
+      <div className="userIngredients">
+        <p>My ingredients:</p>
+        <ul className="ingredientList">
+          {edit ? (
+            ingredients.filter(i => !removeList.some(r => r.id === i.id)).map(ingredient => (
+              <li
+                className="ingredient"
+                key={ingredient.id}
+                role="menuitem"
+                tabIndex={0}
+                onClick={() => setRemoveList(prev => [...prev, ingredient])}
+              >
+                <span>(-)</span>
+                <span>{ingredient.name}</span>
+                {ingredient.verified && <span>✔️</span>}
+              </li>
+            ))
+          ) : (
+            ingredients.map(ingredient => (
+              <li className="ingredient" key={ingredient.id}>
+                <span>{ingredient.name}</span>
+                {' '}
+                {ingredient.verified && <span>✔️</span>}
+              </li>
+            ))
+          )}
+        </ul>
+      </div>
+      <div className="buttons">
         {edit ? (
-          ingredients.filter(i => !removeList.some(r => r.id === i.id)).map(ingredient => (
-            <li
-              className="option"
-              key={ingredient.id}
-              role="menuitem"
-              tabIndex={0}
-              onClick={() => setRemoveList(prev => [...prev, ingredient])}
+          <>
+            <button
+              className="btn"
+              type="button"
+              onClick={confirm}
             >
-              <span>{ingredient.name}</span>
-              {' '}
-              {ingredient.verified && <span>✔️</span>}
-              {' '}
-              <span> -</span>
-            </li>
-          ))
+              Confirm
+            </button>
+            <button
+              className="btn"
+              type="button"
+              onClick={reset}
+            >
+              Cancel
+            </button>
+          </>
         ) : (
-          ingredients.map(ingredient => (
-            <li className="ingredient" key={ingredient.id}>
-              <span>{ingredient.name}</span>
-              {' '}
-              {ingredient.verified && <span>✔️</span>}
-            </li>
-          ))
+          <button
+            className="btn"
+            type="button"
+            onClick={() => setEdit(true)}
+          >
+            Edit
+          </button>
         )}
-      </ul>
-      {edit ? (
-        <>
-          <button
-            className="btn"
-            type="button"
-            onClick={confirm}
-          >
-            Confirm
-          </button>
-          <button
-            className="btn"
-            type="button"
-            onClick={reset}
-          >
-            Cancel
-          </button>
-        </>
-      ) : (
-        <button
-          className="btn"
-          type="button"
-          onClick={() => setEdit(true)}
-        >
-          Edit
-        </button>
-      )}
+      </div>
     </div>
   );
 };
