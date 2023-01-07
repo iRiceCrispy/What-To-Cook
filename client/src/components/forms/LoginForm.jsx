@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { demo, login } from '../../store/session';
+import './index.scss';
 
 const LoginForm = () => {
   const dispatch = useDispatch();
@@ -50,12 +51,11 @@ const LoginForm = () => {
   return (
     <form id="loginForm" className="form" onSubmit={handleLogin}>
       <header>
-        <h2>Log In</h2>
-        <div className="loginError">
-          <p>{errors.login}</p>
-        </div>
+        <h2>Welcome Back</h2>
+        <div className="loginError" />
       </header>
       <main>
+        <p className="error">{errors.login}</p>
         <div className="formField">
           <label htmlFor="credential">Username / Email</label>
           <div className="inputContainer">
@@ -65,7 +65,7 @@ const LoginForm = () => {
               value={credential}
               onChange={e => setCredential(e.target.value)}
             />
-            <p>{errors.credential}</p>
+            <p className="error">{errors.credential}</p>
           </div>
         </div>
         <div className="formField">
@@ -78,7 +78,7 @@ const LoginForm = () => {
               value={password}
               onChange={e => setPassword(e.target.value)}
             />
-            <p>{errors.password}</p>
+            <p className="error">{errors.password}</p>
           </div>
         </div>
       </main>
@@ -88,8 +88,8 @@ const LoginForm = () => {
           <button className="btn" type="button" onClick={handleDemo}>Log In as Demo</button>
         </div>
         <div className="text">
-          <span>Not registered?</span>
-          <Link to="/signup">Ceate an account.</Link>
+          <span>Not registered? </span>
+          <Link className="underline" to="/signup">Ceate an account.</Link>
         </div>
       </footer>
     </form>

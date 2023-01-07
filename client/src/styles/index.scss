@@ -47,6 +47,11 @@ input:focus {
   outline: none;
 }
 
+label {
+  display: inline-block;
+  user-select: none;
+}
+
 ul {
   list-style: none;
 }

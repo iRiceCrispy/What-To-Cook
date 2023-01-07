@@ -34,7 +34,7 @@ const SignupForm = () => {
   return (
     <form id="loginForm" className="form" onSubmit={handleSignup}>
       <header>
-        <h2>Log In</h2>
+        <h2>Create an account</h2>
       </header>
       <main>
         <div className="formField">
@@ -46,7 +46,7 @@ const SignupForm = () => {
               value={username}
               onChange={e => setUsername(e.target.value)}
             />
-            <p>{errors.username}</p>
+            <p className="error">{errors.username}</p>
           </div>
         </div>
         <div className="formField">
@@ -58,7 +58,7 @@ const SignupForm = () => {
               value={email}
               onChange={e => setEmail(e.target.value)}
             />
-            <p>{errors.email}</p>
+            <p className="error">{errors.email}</p>
           </div>
         </div>
         <div className="formField">
@@ -71,7 +71,7 @@ const SignupForm = () => {
               value={password}
               onChange={e => setPassword(e.target.value)}
             />
-            <p>{errors.password}</p>
+            <p className="error">{errors.password}</p>
           </div>
         </div>
         <div className="formField">
@@ -84,7 +84,7 @@ const SignupForm = () => {
               value={confirmPassword}
               onChange={e => setConfirmPassword(e.target.value)}
             />
-            <p>{errors.confirmPassword}</p>
+            <p className="error">{errors.confirmPassword}</p>
           </div>
         </div>
       </main>
@@ -93,8 +93,8 @@ const SignupForm = () => {
           <button className="btn" type="submit">Sign up</button>
         </div>
         <div className="text">
-          <span>Already registered?</span>
-          <Link to="/login">Log in here.</Link>
+          <span>Already registered? </span>
+          <Link className="underline" to="/login">Log in here.</Link>
         </div>
       </footer>
     </form>
