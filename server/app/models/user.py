@@ -11,6 +11,7 @@ class User(db.Model, UserMixin):
     hashed_password = db.Column(db.String(255), nullable=False)
 
     ingredients = db.relationship('Ingredient', secondary=user_ingredient)
+    recipes = db.relationship('Recipe', back_populates='user')
 
     @property
     def password(self):
@@ -35,5 +36,6 @@ class User(db.Model, UserMixin):
             'id': self.id,
             'username': self.username,
             'email': self.email,
-            'ingredients': [ingredient.to_dict() for ingredient in self.ingredients]
+            'ingredients': [ingredient.to_dict() for ingredient in self.ingredients],
+            'recipes': [recipe.to_dict() for recipe in self.recipes]
         }
