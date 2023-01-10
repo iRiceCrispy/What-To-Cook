@@ -58,4 +58,6 @@ const recipesSlice = createSlice({
   },
 });
 
+export const recipesSelectors = recipesAdapter.getSelectors(state => state.recipes);
+
 export default recipesSlice.reducer;
