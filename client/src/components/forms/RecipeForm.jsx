@@ -80,8 +80,12 @@ const RecipeForm = () => {
                 <li
                   className="ingredient"
                   key={ingredient.id}
+                  role="menuitem"
+                  tabIndex={0}
+                  onClick={() => setIngredients(prev => prev.filter(i => i.id !== ingredient.id))}
                 >
-                  {ingredient.name}
+                  <span>{ingredient.name}</span>
+                  <span>(-)</span>
                 </li>
               ))}
             </ul>
@@ -101,6 +105,7 @@ const RecipeForm = () => {
                   onClick={() => setIngredients(prev => [...prev, option])}
                 >
                   <span>{option.name}</span>
+                  <span>(+)</span>
                 </li>
               ))}
             </ul>
