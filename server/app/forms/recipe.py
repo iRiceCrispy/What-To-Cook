@@ -18,5 +18,5 @@ class InstructionForm(Form):
 class RecipesForm(FlaskForm):
     name = StringField(validators=[DataRequired()])
     description = StringField(validators=[Optional()])
-    ingredients = FieldList(FormField(IngredientForm))
-    instructions = FieldList(FormField(InstructionForm))
+    ingredients = FieldList(FormField(IngredientForm), min_entries=1)
+    instructions = FieldList(FormField(InstructionForm), min_entries=1)

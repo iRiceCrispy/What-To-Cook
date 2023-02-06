@@ -10,6 +10,7 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
 import RecipeDetails from './components/ui/RecipeDetails';
+import RecipeForm from './components/forms/RecipeForm';
 
 const App = () => {
   const dispatch = useDispatch();
@@ -47,6 +48,10 @@ const App = () => {
         <Route
           path="/dashboard"
           element={<Dashboard />}
+        />
+        <Route
+          path="/recipes/create"
+          element={<RecipeForm />}
         />
         <Route
           path="/recipes/:id"

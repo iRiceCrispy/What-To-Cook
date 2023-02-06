@@ -12,10 +12,16 @@ export const getRecipes = createAsyncThunk(
 
 export const addRecipe = createAsyncThunk(
   'recipes/add',
-  async ({ userId, recipe }) => {
-    const res = await axios.post(`/api/users/${userId}/recipes`, recipe);
+  async (recipe, { getState, rejectWithValue }) => {
+    try {
+      const { session: { user: { id } } } = getState();
+      const res = await axios.post(`/api/users/${id}/recipes`, recipe);
 
-    return res.data.recipe;
+      return res.data.recipe;
+    }
+    catch (err) {
+      return rejectWithValue(err.response.data.errors);
+    }
   },
 );
 
