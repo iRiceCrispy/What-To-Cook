@@ -58,6 +58,10 @@ const App = () => {
           element={<RecipeDetails />}
         />
         <Route
+          path="/recipes/:id/edit"
+          element={<RecipeForm edit />}
+        />
+        <Route
           path="*"
           element={<Navigate to="/" />}
         />

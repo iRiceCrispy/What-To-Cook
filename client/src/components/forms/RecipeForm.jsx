@@ -1,19 +1,21 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import { recipesSelectors, addRecipe, updateRecipe } from '../../store/recipes';
 import { ingredientsSelectors } from '../../store/ingredients';
-import { addRecipe } from '../../store/recipes';
 import './index.scss';
 
-const RecipeForm = () => {
+const RecipeForm = ({ edit }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { id } = useParams();
   const ingredientList = useSelector(ingredientsSelectors.selectAll);
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
+  const recipe = useSelector(state => recipesSelectors.selectById(state, id));
+  const [name, setName] = useState(edit ? recipe.name : '');
+  const [description, setDescription] = useState(edit ? recipe.description : '');
   const [ingredientInput, setIngredientInput] = useState('');
-  const [ingredients, setIngredients] = useState([]);
-  const [instructions, setInstructions] = useState(['']);
+  const [ingredients, setIngredients] = useState(edit ? recipe.ingredients : []);
+  const [instructions, setInstructions] = useState(edit ? recipe.instructions.map(i => i.body) : ['']);
   const [errors, setErrors] = useState({});
 
   const options = ingredientList.filter(il => il.name.includes(ingredientInput)
@@ -23,7 +25,7 @@ const RecipeForm = () => {
     e.preventDefault();
     setErrors({});
 
-    const recipe = {
+    const newRecipe = {
       name,
       description,
       ingredients,
@@ -32,14 +34,27 @@ const RecipeForm = () => {
       )),
     };
 
-    dispatch(addRecipe(recipe))
-      .unwrap()
-      .then(({ id }) => {
-        navigate(`/recipes/${id}`);
-      })
-      .catch((err) => {
-        setErrors(err);
-      });
+    if (edit) {
+      newRecipe.id = recipe.id;
+      dispatch(updateRecipe(newRecipe))
+        .unwrap()
+        .then((r) => {
+          navigate(`/recipes/${r.id}`);
+        })
+        .catch((err) => {
+          setErrors(err);
+        });
+    }
+    else {
+      dispatch(addRecipe(newRecipe))
+        .unwrap()
+        .then((r) => {
+          navigate(`/recipes/${r.id}`);
+        })
+        .catch((err) => {
+          setErrors(err);
+        });
+    }
   };
 
   return (
@@ -151,7 +166,7 @@ const RecipeForm = () => {
       </main>
       <footer>
         <div className="buttons">
-          <button className="btn" type="submit">Create</button>
+          <button className="btn" type="submit">{edit ? 'Confirm' : 'Create'}</button>
         </div>
       </footer>
     </form>

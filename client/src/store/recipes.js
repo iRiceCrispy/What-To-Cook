@@ -27,10 +27,15 @@ export const addRecipe = createAsyncThunk(
 
 export const updateRecipe = createAsyncThunk(
   'recipes/update',
-  async (recipe) => {
-    const res = await axios.put(`/api/recipes/${recipe.id}`, recipe);
+  async (recipe, { rejectWithValue }) => {
+    try {
+      const res = await axios.put(`/api/recipes/${recipe.id}`, recipe);
 
-    return res.data.recipe;
+      return res.data.recipe;
+    }
+    catch (err) {
+      return rejectWithValue(err.response.data.errors);
+    }
   },
 );
 
@@ -56,7 +61,7 @@ const recipesSlice = createSlice({
         recipesAdapter.addOne(state, payload);
       })
       .addCase(updateRecipe.fulfilled, (state, { payload }) => {
-        recipesAdapter.updateOne(state, payload);
+        recipesAdapter.upsertOne(state, payload);
       })
       .addCase(removeRecipe.fulfilled, (state, { payload }) => {
         recipesAdapter.removeOne(state, { payload });
