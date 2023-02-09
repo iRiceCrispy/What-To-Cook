@@ -2,9 +2,11 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { recipesSelectors } from '../../../store/recipes';
+import { userIngredientsSelectors } from '../../../store/userIngredients';
 import './index.scss';
 
 const Recipes = () => {
+  const userIngredients = useSelector(userIngredientsSelectors.selectAll);
   const recipes = useSelector(recipesSelectors.selectAll);
 
   return (
@@ -21,6 +23,18 @@ const Recipes = () => {
                 {' '}
                 {recipe.user.username}
               </p>
+              <div className="matchingIngredients">
+                <span>
+                  You have
+                  {' '}
+                  {recipe.ingredients.filter(i => userIngredients
+                    .some(ui => ui.id === i.id)).length}
+                  /
+                  {recipe.ingredients.length}
+                  {' '}
+                  required ingredients.
+                </span>
+              </div>
             </Link>
           </li>
         ))}
