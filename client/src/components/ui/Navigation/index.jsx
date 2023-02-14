@@ -18,6 +18,9 @@ const Navigation = () => {
             </Link>
           </div>
         </div>
+        <div className="center">
+          <Link to="/recipes/create">Create Recipe</Link>
+        </div>
         <div className="end">
           {sessionUser
             ? (

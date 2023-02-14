@@ -1,0 +1,8 @@
+@use "../../../styles/variables" as *;
+
+.recipes {
+  .recipe {
+    display: block;
+    border: 1px solid $border-color;
+  }
+}
