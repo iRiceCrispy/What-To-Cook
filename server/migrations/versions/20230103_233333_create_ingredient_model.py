@@ -1,4 +1,4 @@
-"""created ingredient model
+"""create ingredient model
 
 Revision ID: da55e23b9f01
 Revises: 621fe0b079e2

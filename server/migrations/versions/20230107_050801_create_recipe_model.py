@@ -1,4 +1,4 @@
-"""created recipe model
+"""create recipe model
 
 Revision ID: 85a0b9ccbf82
 Revises: da55e23b9f01
