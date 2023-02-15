@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { recipesSelectors, removeRecipe } from '../../../store/recipes';
 import { getSessionUser } from '../../../store/session';
-import { userIngredientsSelectors } from '../../../store/userIngredients';
+import { pantrySelectors } from '../../../store/pantry';
 import Navigation from '../Navigation';
 
 const RecipeDetails = () => {
@@ -11,7 +11,7 @@ const RecipeDetails = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const sessionUser = useSelector(getSessionUser);
-  const userIngredients = useSelector(userIngredientsSelectors.selectAll);
+  const pantry = useSelector(pantrySelectors.selectAll);
   const recipe = useSelector(state => recipesSelectors.selectById(state, id));
   const isOwner = recipe.user.id === sessionUser?.id;
 
@@ -37,7 +37,7 @@ const RecipeDetails = () => {
             <span>
               You have
               {' '}
-              {recipe.ingredients.filter(i => userIngredients.some(ui => ui.id === i.id)).length}
+              {recipe.ingredients.filter(i => pantry.some(pi => pi.id === i.id)).length}
               /
               {recipe.ingredients.length}
               {' '}

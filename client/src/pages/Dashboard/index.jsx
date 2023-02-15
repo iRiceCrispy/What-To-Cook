@@ -1,5 +1,5 @@
 import React from 'react';
-import Ingredients from '../../components/ui/Ingredients';
+import Pantry from '../../components/ui/Pantry';
 import Navigation from '../../components/ui/Navigation';
 import Recipes from '../../components/ui/Recipes';
 import './index.scss';
@@ -7,7 +7,7 @@ import './index.scss';
 const Dashboard = () => (
   <div id="dashboard">
     <Navigation />
-    <Ingredients />
+    <Pantry />
     <Recipes />
   </div>
 );

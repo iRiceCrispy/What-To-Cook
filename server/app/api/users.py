@@ -6,22 +6,22 @@ from app.models import db, Ingredient, Instruction, Recipe, User
 users = Blueprint('users', __name__)
 
 
-@users.get('/<int:user_id>/ingredients')
-def get_ingredients(user_id):
+@users.get('/<int:user_id>/pantry')
+def get_pantry(user_id):
     """
-    Get list of ingredients of a user
+    Get ingredients in a user's pantry
     """
     user = db.session.get(User, user_id)
     if user:
-        return {'ingredients': user.to_dict().get('ingredients')}
+        return {'pantry': user.to_dict().get('pantry')}
     else:
         return {'message': 'User not found.'}, 404
 
 
-@users.post('/<int:user_id>/ingredients')
-def add_ingredients(user_id):
+@users.post('/<int:user_id>/pantry')
+def add_to_pantry(user_id):
     """
-    Add ingredients to a user's ingredient list
+    Add ingredients to a user's pantry
     """
     form = IngredientsForm()
     form.process(data=request.json)
@@ -45,18 +45,18 @@ def add_ingredients(user_id):
         ingredients = [get_from_db(data)
                        for data in form.data.get('ingredients')]
 
-        user.ingredients.extend(ingredients)
+        user.pantry.extend(ingredients)
         db.session.commit()
 
-        return {'ingredients': user.to_dict().get('ingredients')}
+        return {'pantry': user.to_dict().get('pantry')}
     else:
         return {'errors': form.errors}, 401
 
 
-@users.delete('/<int:user_id>/ingredients')
-def remove_ingredients(user_id):
+@users.delete('/<int:user_id>/pantry')
+def remove_from_pantry(user_id):
     """
-    Remove ingredients from a user's ingredient list
+    Remove ingredients from a user's pantry
     """
     form = IngredientsForm()
     form.process(data=request.json)
@@ -68,15 +68,13 @@ def remove_ingredients(user_id):
         ingredients = [db.session.get(Ingredient, data.get('id'))
                        for data in form.data.get('ingredients')]
 
-        print(ingredients)
-
         for ingredient in ingredients:
-            if ingredient in user.ingredients:
-                user.ingredients.remove(ingredient)
+            if ingredient in user.pantry:
+                user.pantry.remove(ingredient)
 
         db.session.commit()
 
-        return {'ingredients': user.to_dict().get('ingredients')}
+        return {'pantry': user.to_dict().get('pantry')}
     else:
         return {'errors': form.errors}, 401
 

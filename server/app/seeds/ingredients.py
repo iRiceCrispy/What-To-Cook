@@ -29,7 +29,7 @@ ingredient_list = list(ingredients.values())
 
 def seed_ingredient():
     db.session.add_all(ingredient_list)
-    demo.ingredients = ingredient_list
+    demo.pantry = ingredient_list
 
 
 def unseed_ingredient():

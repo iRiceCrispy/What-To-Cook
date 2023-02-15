@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { getIngredients } from './store/ingredients';
 import { getRecipes } from './store/recipes';
-import { getUserIngredients } from './store/userIngredients';
+import { getPantry } from './store/pantry';
 import { restoreSession, getSessionUser } from './store/session';
 import Splash from './pages/Splash';
 import Login from './pages/Login';
@@ -27,7 +27,7 @@ const App = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    if (sessionUser) dispatch(getUserIngredients(sessionUser.id));
+    if (sessionUser) dispatch(getPantry(sessionUser.id));
   }, [dispatch, sessionUser]);
 
   return isLoaded && (

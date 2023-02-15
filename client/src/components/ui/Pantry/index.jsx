@@ -2,14 +2,14 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { ingredientsSelectors } from '../../../store/ingredients';
 import { getSessionUser } from '../../../store/session';
-import { addUserIngredients, removeUserIngredients, userIngredientsSelectors } from '../../../store/userIngredients';
+import { addToPantry, removeFromPantry, pantrySelectors } from '../../../store/pantry';
 import './index.scss';
 
-const Ingredients = () => {
+const Pantry = () => {
   const dispatch = useDispatch();
   const sessionUser = useSelector(getSessionUser);
-  const ingredientList = useSelector(ingredientsSelectors.selectAll);
-  const ingredients = useSelector(userIngredientsSelectors.selectAll);
+  const ingredients = useSelector(ingredientsSelectors.selectAll);
+  const pantry = useSelector(pantrySelectors.selectAll);
   const [addList, setAddList] = useState([]);
   const [removeList, setRemoveList] = useState([]);
   const [input, setInput] = useState('');
@@ -17,8 +17,8 @@ const Ingredients = () => {
   const [showMenu, setShowMenu] = useState(false);
   const ref = useRef(null);
 
-  const options = ingredientList.filter(il => il.name.includes(input)
-    && !ingredients.some(i => i.id === il.id)
+  const options = ingredients.filter(il => il.name.includes(input)
+    && !pantry.some(i => i.id === il.id)
     && !addList.some(i => i.id === il.id));
 
   const reset = () => {
@@ -30,10 +30,10 @@ const Ingredients = () => {
 
   const confirm = async () => {
     if (addList.length) {
-      await dispatch(addUserIngredients({ userId: sessionUser.id, ingredients: addList }));
+      await dispatch(addToPantry({ userId: sessionUser.id, ingredients: addList }));
     }
     if (removeList.length) {
-      await dispatch(removeUserIngredients({ userId: sessionUser.id, ingredients: removeList }));
+      await dispatch(removeFromPantry({ userId: sessionUser.id, ingredients: removeList }));
     }
 
     reset();
@@ -50,7 +50,7 @@ const Ingredients = () => {
   }, []);
 
   return (
-    <div className="ingredients">
+    <div className="pantry">
       {edit && (
         <>
           <div className="searchIngredients" ref={ref}>
@@ -117,11 +117,11 @@ const Ingredients = () => {
           </div>
         </>
       )}
-      <div className="userIngredients">
+      <div className="ingredients">
         <p>My ingredients:</p>
         <ul className="ingredientList">
           {edit ? (
-            ingredients.filter(i => !removeList.some(r => r.id === i.id)).map(ingredient => (
+            pantry.filter(i => !removeList.some(r => r.id === i.id)).map(ingredient => (
               <li
                 className="ingredient"
                 key={ingredient.id}
@@ -135,7 +135,7 @@ const Ingredients = () => {
               </li>
             ))
           ) : (
-            ingredients.map(ingredient => (
+            pantry.map(ingredient => (
               <li className="ingredient" key={ingredient.id}>
                 <span>{ingredient.name}</span>
                 {' '}
@@ -177,4 +177,4 @@ const Ingredients = () => {
   );
 };
 
-export default Ingredients;
+export default Pantry;

@@ -2,11 +2,11 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { recipesSelectors } from '../../../store/recipes';
-import { userIngredientsSelectors } from '../../../store/userIngredients';
+import { pantrySelectors } from '../../../store/pantry';
 import './index.scss';
 
 const Recipes = () => {
-  const userIngredients = useSelector(userIngredientsSelectors.selectAll);
+  const pantry = useSelector(pantrySelectors.selectAll);
   const recipes = useSelector(recipesSelectors.selectAll);
 
   return (
@@ -27,8 +27,7 @@ const Recipes = () => {
                 <span>
                   You have
                   {' '}
-                  {recipe.ingredients.filter(i => userIngredients
-                    .some(ui => ui.id === i.id)).length}
+                  {recipe.ingredients.filter(i => pantry.some(pi => pi.id === i.id)).length}
                   /
                   {recipe.ingredients.length}
                   {' '}
