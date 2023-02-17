@@ -1,22 +1,21 @@
 import React from 'react';
-import { Box, Container, Toolbar } from '@mui/material';
+import { Container } from '@mui/material';
 import RecipeForm from '../../components/forms/RecipeForm';
-import Navigation from '../../components/ui/Navigation';
+import SecondaryLayout from '../../layouts/SecondaryLayout';
 
 const RecipeFormPage = ({ edit }) => (
-  <Box
-    id="recipeForm"
-    sx={{
-      height: 1,
-      display: 'flex',
-    }}
-  >
-    <Navigation />
-    <Container sx={{ width: 750 }}>
-      <Toolbar />
+  <SecondaryLayout>
+    <Container
+      disableGutters
+      sx={{
+        width: 600,
+        p: 8,
+        boxSizing: 'content-box',
+      }}
+    >
       <RecipeForm edit={edit} />
     </Container>
-  </Box>
+  </SecondaryLayout>
 );
 
 export default RecipeFormPage;

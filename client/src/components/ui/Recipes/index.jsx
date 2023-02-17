@@ -1,7 +1,7 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { Box, Card, CardActionArea, CardContent, CardMedia, Grid, Toolbar, Typography } from '@mui/material';
+import { Box, Card, CardActionArea, CardContent, CardMedia, Grid, Typography } from '@mui/material';
 import { recipesSelectors } from '../../../store/recipes';
 import { pantrySelectors } from '../../../store/pantry';
 
@@ -20,19 +20,12 @@ const Recipes = () => {
         overflow: 'auto',
       }}
     >
-      <Toolbar />
-      <Typography
-        component="h1"
-        variant="h4"
-        sx={{ mt: 4 }}
-      >
-        Recipes:
-      </Typography>
+      <Typography component="h1" variant="h4">Recipes:</Typography>
       <Grid
         container
         sx={{
-          maxWidth: 900,
           mt: 6,
+          pb: 1,
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fill, 250px)',
           justifyContent: 'center',

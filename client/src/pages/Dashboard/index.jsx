@@ -1,21 +1,17 @@
 import React from 'react';
-import { Box } from '@mui/material';
-import Pantry from '../../components/ui/Pantry';
-import Navigation from '../../components/ui/Navigation';
+import { Container } from '@mui/material';
 import Recipes from '../../components/ui/Recipes';
+import MainLayout from '../../layouts/MainLayout';
 
 const Dashboard = () => (
-  <Box
-    id="dashboard"
-    sx={{
-      height: 1,
-      display: 'flex',
-    }}
-  >
-    <Navigation />
-    <Recipes />
-    <Pantry />
-  </Box>
+  <MainLayout>
+    <Container
+      disableGutters
+      sx={{ p: 8 }}
+    >
+      <Recipes />
+    </Container>
+  </MainLayout>
 );
 
 export default Dashboard;

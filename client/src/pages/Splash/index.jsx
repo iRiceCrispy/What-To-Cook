@@ -1,13 +1,11 @@
 import React from 'react';
-import { Box, Typography, Toolbar } from '@mui/material';
-import Navigation from '../../components/ui/Navigation';
+import { Typography } from '@mui/material';
+import MainLayout from '../../layouts/MainLayout';
 
 const Splash = () => (
-  <Box id="splash">
-    <Navigation />
-    <Toolbar />
+  <MainLayout>
     <Typography>Welcome</Typography>
-  </Box>
+  </MainLayout>
 );
 
 export default Splash;
