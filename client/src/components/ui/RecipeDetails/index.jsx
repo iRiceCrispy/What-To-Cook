@@ -1,10 +1,10 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Box, Button, Container, List, ListItem, ListItemText, Typography } from '@mui/material';
 import { recipesSelectors, removeRecipe } from '../../../store/recipes';
 import { getSessionUser } from '../../../store/session';
 import { pantrySelectors } from '../../../store/pantry';
-import Navigation from '../Navigation';
 
 const RecipeDetails = () => {
   const dispatch = useDispatch();
@@ -13,7 +13,7 @@ const RecipeDetails = () => {
   const sessionUser = useSelector(getSessionUser);
   const pantry = useSelector(pantrySelectors.selectAll);
   const recipe = useSelector(state => recipesSelectors.selectById(state, id));
-  const isOwner = recipe.user.id === sessionUser?.id;
+  const isOwner = recipe?.user.id === sessionUser?.id;
 
   const handleDelete = () => {
     dispatch(removeRecipe(id));
@@ -21,20 +21,31 @@ const RecipeDetails = () => {
   };
 
   return (
-    <div id="recipeDetails">
-      <Navigation />
+    <Box sx={{
+      height: 1,
+      flexGrow: 1,
+      overflow: 'auto',
+    }}
+    >
       {recipe ? (
         <>
-          <h2 className="name">{recipe.name}</h2>
-          <p className="description">{recipe.description || 'No description.'}</p>
-          {isOwner && (
-          <>
-            <Link to="./edit" className="btn">Edit</Link>
-            <button className="btn" type="button" onClick={handleDelete}>Delete</button>
-          </>
-          )}
-          <div className="matchingIngredients">
-            <span>
+          <Box
+            elevation={0}
+            sx={{
+              height: 350,
+              bgcolor: '#ccc',
+            }}
+          />
+          <Container sx={{ width: 0.75 }}>
+            <Typography component="h1" variant="h4">{recipe.name}</Typography>
+            <Typography component="h2" variant="h6">{recipe.description || 'No description'}</Typography>
+            {isOwner && (
+            <Box>
+              <Button variant="contained" component={Link} to="./edit">Edit</Button>
+              <Button variant="contained" onClick={handleDelete}>Delete</Button>
+            </Box>
+            )}
+            <Typography variant="body2">
               You have
               {' '}
               {recipe.ingredients.filter(i => pantry.some(pi => pi.id === i.id)).length}
@@ -42,32 +53,32 @@ const RecipeDetails = () => {
               {recipe.ingredients.length}
               {' '}
               required ingredients.
-            </span>
-          </div>
-          <ul className="ingredients">
-            {recipe.ingredients.map(ingredient => (
-              <li className="ingredient" key={ingredient.id}>
-                {ingredient.name}
-              </li>
-            ))}
-          </ul>
-          <ul className="instructions">
-            {recipe.instructions.map(instruction => (
-              <li className="instruction" key={instruction.id}>
-                <span className="order">
-                  {instruction.order}
-                  {' '}
-                  .
-                </span>
-                <span className="body">{instruction.body}</span>
-              </li>
-            ))}
-          </ul>
+            </Typography>
+            <List>
+              {recipe.ingredients.map(ingredient => (
+                <ListItem
+                  key={ingredient.id}
+                  sx={{ py: 0 }}
+                >
+                  <ListItemText primary={ingredient.name} />
+                </ListItem>
+              ))}
+            </List>
+            <Typography variant="h6">Instructions:</Typography>
+            <List component="ol">
+              {recipe.instructions.map(instruction => (
+                <ListItem key={instruction.id}>
+                  <ListItemText primary={`Step ${instruction.order}. `} secondary={instruction.body} />
+                </ListItem>
+              ))}
+            </List>
+
+          </Container>
         </>
       ) : (
-        <p>No Recipe Found</p>
+        <Typography variant="h5">No Recipe Found</Typography>
       )}
-    </div>
+    </Box>
   );
 };
 

@@ -1,9 +1,10 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { Autocomplete, Box, Button, Chip, Drawer, TextField, Toolbar, Typography } from '@mui/material';
+import { Verified } from '@mui/icons-material';
 import { ingredientsSelectors } from '../../../store/ingredients';
 import { getSessionUser } from '../../../store/session';
 import { addToPantry, removeFromPantry, pantrySelectors } from '../../../store/pantry';
-import './index.scss';
 
 const Pantry = () => {
   const dispatch = useDispatch();
@@ -14,12 +15,8 @@ const Pantry = () => {
   const [removeList, setRemoveList] = useState([]);
   const [input, setInput] = useState('');
   const [edit, setEdit] = useState(false);
-  const [showMenu, setShowMenu] = useState(false);
-  const ref = useRef(null);
 
-  const options = ingredients.filter(il => il.name.includes(input)
-    && !pantry.some(i => i.id === il.id)
-    && !addList.some(i => i.id === il.id));
+  const options = ingredients.filter(il => !pantry.some(i => i.id === il.id));
 
   const reset = () => {
     setInput('');
@@ -39,141 +36,143 @@ const Pantry = () => {
     reset();
   };
 
-  useEffect(() => {
-    const closeMenu = (e) => {
-      if (ref.current && !ref.current.contains(e.target)) setShowMenu(false);
-    };
-
-    document.addEventListener('click', closeMenu);
-
-    return () => document.removeEventListener('click', closeMenu);
-  }, []);
-
   return (
-    <div className="pantry">
+    <Drawer
+      id="pantry"
+      variant="permanent"
+      anchor="right"
+      sx={{
+        width: 350,
+        flexShrink: 0,
+        '& .MuiDrawer-paper': { width: 350, p: 3, boxSizing: 'border-box' },
+      }}
+    >
+      <Toolbar />
       {edit && (
         <>
-          <div className="searchIngredients" ref={ref}>
-            <input
-              className="input"
-              value={input}
-              onClick={() => setShowMenu(!showMenu)}
-              onChange={e => setInput(e.target.value)}
-            />
-            {showMenu && (
-              <ul className="options">
-                {options.map(option => (
-                  <li
-                    className="option"
-                    key={option.id}
-                    role="menuitem"
-                    tabIndex={0}
-                    onClick={() => setAddList(prev => [...prev, option])}
-                  >
-                    <span>(+)</span>
-                    {option.verified && <span>✔️</span>}
-                    <span>{option.name}</span>
-                  </li>
-                ))}
-              </ul>
+          <Autocomplete
+            multiple
+            id="searchIngredients"
+            options={options}
+            value={addList}
+            onChange={(e, newValue) => setAddList(newValue)}
+            inputValue={input}
+            onInputChange={(e, newInputValue) => setInput(newInputValue)}
+            getOptionLabel={option => option.name}
+            isOptionEqualToValue={(option, value) => option.name === value.name}
+            renderInput={params => (
+              <TextField
+                {...params}
+                placeholder="Search for ingredients"
+              />
             )}
-          </div>
-          <div className="addList">
-            <p>To be added:</p>
-            <ul className="ingredientList">
+            renderTags={() => null}
+          />
+          <Box>
+            <Typography>To be added:</Typography>
+            <Box
+              component="ul"
+              sx={{
+                m: 0,
+                p: 0,
+                display: 'flex',
+                justifyContent: 'start',
+                flexWrap: 'wrap',
+                gap: 1,
+              }}
+            >
               {addList.map(ingredient => (
-                <li
-                  className="ingredient"
-                  key={ingredient.id || ingredient.name}
-                  role="menuitem"
-                  tabIndex={0}
-                  onClick={() => setAddList(prev => prev.filter(i => i.name !== ingredient.name))}
-                >
-                  <span>(-)</span>
-                  <span>{ingredient.name}</span>
-                  {ingredient.verified && <span>✔️</span>}
-                </li>
+                <Chip
+                  key={ingredient.name}
+                  component="li"
+                  icon={ingredient.verified && <Verified fontSize="small" />}
+                  label={ingredient.name}
+                  onDelete={() => setAddList(prev => prev.filter(i => i.name !== ingredient.name))}
+                />
               ))}
-            </ul>
-          </div>
-          <div className="removeList">
-            <p>To be removed:</p>
-            <ul className="ingredientList">
+            </Box>
+          </Box>
+          <Box>
+            <Typography>To be removed:</Typography>
+            <Box
+              component="ul"
+              sx={{
+                m: 0,
+                p: 0,
+                display: 'flex',
+                justifyContent: 'start',
+                flexWrap: 'wrap',
+                gap: 1,
+              }}
+            >
               {removeList.map(ingredient => (
-                <li
-                  className="ingredient"
-                  key={ingredient.id}
-                  role="menuitem"
-                  tabIndex={0}
-                  onClick={() => setRemoveList(prev => prev
+                <Chip
+                  key={ingredient.name}
+                  component="li"
+                  icon={ingredient.verified && <Verified fontSize="small" />}
+                  label={ingredient.name}
+                  onDelete={() => setRemoveList(prev => prev
                     .filter(i => i.name !== ingredient.name))}
-                >
-                  <span>(+)</span>
-                  <span>{ingredient.name}</span>
-                  {ingredient.verified && <span>✔️</span>}
-                </li>
+                />
               ))}
-            </ul>
-          </div>
+            </Box>
+          </Box>
         </>
       )}
-      <div className="ingredients">
-        <p>My ingredients:</p>
-        <ul className="ingredientList">
-          {edit ? (
-            pantry.filter(i => !removeList.some(r => r.id === i.id)).map(ingredient => (
-              <li
-                className="ingredient"
-                key={ingredient.id}
-                role="menuitem"
-                tabIndex={0}
-                onClick={() => setRemoveList(prev => [...prev, ingredient])}
-              >
-                <span>(-)</span>
-                <span>{ingredient.name}</span>
-                {ingredient.verified && <span>✔️</span>}
-              </li>
-            ))
-          ) : (
-            pantry.map(ingredient => (
-              <li className="ingredient" key={ingredient.id}>
-                <span>{ingredient.name}</span>
-                {' '}
-                {ingredient.verified && <span>✔️</span>}
-              </li>
-            ))
-          )}
-        </ul>
-      </div>
-      <div className="buttons">
+      <Box>
+        <Typography>My ingredients:</Typography>
+        <Box
+          component="ul"
+          sx={{
+            m: 0,
+            p: 0,
+            display: 'flex',
+            justifyContent: 'start',
+            flexWrap: 'wrap',
+            gap: 1,
+          }}
+        >
+          {pantry.filter(i => !removeList.some(r => r.id === i.id)).map(ingredient => (
+            <Chip
+              key={ingredient.name}
+              component="li"
+              icon={ingredient.verified && <Verified fontSize="small" />}
+              label={ingredient.name}
+              onDelete={edit ? () => setRemoveList(prev => [...prev, ingredient]) : undefined}
+            />
+          ))}
+        </Box>
+      </Box>
+      <Box sx={{
+        position: 'absolute',
+        bottom: 24,
+      }}
+      >
         {edit ? (
           <>
-            <button
-              className="btn"
-              type="button"
+            <Button
+              variant="contained"
               onClick={confirm}
             >
               Confirm
-            </button>
-            <button
-              className="btn"
-              type="button"
+            </Button>
+            <Button
+              variant="contained"
               onClick={reset}
             >
               Cancel
-            </button>
+            </Button>
           </>
         ) : (
-          <button
-            className="btn"
-            type="button"
+          <Button
+            variant="contained"
             onClick={() => setEdit(true)}
           >
             Edit
-          </button>
+          </Button>
         )}
-      </div>
-    </div>
+      </Box>
+    </Drawer>
   );
 };
 

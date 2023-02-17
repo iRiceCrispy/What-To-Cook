@@ -1,15 +1,21 @@
 import React from 'react';
+import { Box } from '@mui/material';
 import Pantry from '../../components/ui/Pantry';
 import Navigation from '../../components/ui/Navigation';
 import Recipes from '../../components/ui/Recipes';
-import './index.scss';
 
 const Dashboard = () => (
-  <div id="dashboard">
+  <Box
+    id="dashboard"
+    sx={{
+      height: 1,
+      display: 'flex',
+    }}
+  >
     <Navigation />
-    <Pantry />
     <Recipes />
-  </div>
+    <Pantry />
+  </Box>
 );
 
 export default Dashboard;
