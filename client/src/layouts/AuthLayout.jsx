@@ -1,6 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { Box, Container, Toolbar, Typography } from '@mui/material';
+import { Box, Container, Link, Toolbar, Typography } from '@mui/material';
 
 const AuthLayout = ({ children }) => (
   <Box sx={{

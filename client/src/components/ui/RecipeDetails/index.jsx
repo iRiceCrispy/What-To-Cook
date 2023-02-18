@@ -1,7 +1,7 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, useNavigate, useParams } from 'react-router-dom';
-import { Box, Button, Container, List, ListItem, ListItemText, Typography } from '@mui/material';
+import { useNavigate, useParams } from 'react-router-dom';
+import { Box, Button, Container, List, ListItem, ListItemText, Link, Typography } from '@mui/material';
 import { recipesSelectors, removeRecipe } from '../../../store/recipes';
 import { getSessionUser } from '../../../store/session';
 import { pantrySelectors } from '../../../store/pantry';

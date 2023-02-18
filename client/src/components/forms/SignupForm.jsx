@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { Button, Box, TextField, Typography } from '@mui/material';
+import { Button, Box, Link, TextField, Typography } from '@mui/material';
 import { signup } from '../../store/session';
 
 const SignupForm = () => {

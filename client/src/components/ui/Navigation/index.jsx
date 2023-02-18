@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, useNavigate } from 'react-router-dom';
-import { AppBar, Toolbar, Button, Menu, Typography, Box, MenuItem, IconButton } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import { AppBar, Toolbar, Button, Menu, Link, Typography, Box, MenuItem, IconButton } from '@mui/material';
 import { AccountCircle } from '@mui/icons-material';
+import { styled } from '@mui/material/styles';
 import { getSessionUser, logout } from '../../../store/session';
 
 const Navigation = () => {
@@ -24,19 +25,30 @@ const Navigation = () => {
       .then(() => navigate('/'));
   };
 
+  const NavButton = styled(Button)(() => ({
+    color: 'inherit',
+    fontWeight: 'bold',
+    size: 'large',
+  }));
+
   return (
     <AppBar
+      color="secondary"
       position="fixed"
-      sx={{ zIndex: theme => theme.zIndex.drawer + 1 }}
     >
       <Toolbar>
         <Typography
-          variant="h6"
+          variant="h5"
           noWrap
           component={Link}
           to="/"
+          sx={{
+            fontWeight: 'bold',
+            color: 'inherit',
+            textDecoration: 'none',
+          }}
         >
-          What to cook
+          What To Cook
         </Typography>
         <Box sx={{
           display: 'flex',
@@ -45,30 +57,37 @@ const Navigation = () => {
           mx: 6,
         }}
         >
-          <Button
+          <NavButton
             component={Link}
             to="/recipes/create"
-            color="secondary"
           >
             Create Recipe
-          </Button>
+          </NavButton>
         </Box>
         <Box sx={{
           display: 'flex',
+          alignItems: 'center',
           gap: 4,
         }}
         >
           {sessionUser ? (
             <>
-              <Button
+              <NavButton
                 component={Link}
                 to="/dashboard"
-                color="secondary"
               >
                 Dashboard
-              </Button>
-              <IconButton size="large" onClick={openMenu}>
-                <AccountCircle fontSize="large" />
+              </NavButton>
+              <IconButton
+                color="inherit"
+                onClick={openMenu}
+                sx={{
+                  height: 'min-content',
+                  width: 'min-content',
+                  p: 0,
+                }}
+              >
+                <AccountCircle sx={{ color: 'inherit' }} fontSize="large" />
               </IconButton>
               <Menu
                 anchorEl={anchorEl}
@@ -82,20 +101,18 @@ const Navigation = () => {
             </>
           ) : (
             <>
-              <Button
+              <NavButton
                 component={Link}
                 to="/login"
-                color="secondary"
               >
                 Login
-              </Button>
-              <Button
+              </NavButton>
+              <NavButton
                 component={Link}
                 to="/signup"
-                color="secondary"
               >
                 Sign up
-              </Button>
+              </NavButton>
             </>
           )}
         </Box>
