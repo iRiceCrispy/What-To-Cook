@@ -4,172 +4,219 @@ import { Autocomplete, Box, Button, Chip, Drawer, TextField, Toolbar, Typography
 import { Verified } from '@mui/icons-material';
 import { ingredientsSelectors } from '../../../store/ingredients';
 import { getSessionUser } from '../../../store/session';
-import { addToPantry, removeFromPantry, pantrySelectors } from '../../../store/pantry';
+import { updatePantry, pantrySelectors } from '../../../store/pantry';
 
 const Pantry = () => {
   const dispatch = useDispatch();
   const sessionUser = useSelector(getSessionUser);
   const ingredients = useSelector(ingredientsSelectors.selectAll);
   const pantry = useSelector(pantrySelectors.selectAll);
+  const [newPantry, setNewPantry] = useState(pantry);
   const [addList, setAddList] = useState([]);
   const [removeList, setRemoveList] = useState([]);
   const [input, setInput] = useState('');
-  const [edit, setEdit] = useState(false);
 
-  const options = ingredients.filter(il => !pantry.some(i => i.id === il.id));
+  const edited = Boolean(addList.length || removeList.length);
 
-  const reset = () => {
-    setInput('');
-    setAddList([]);
-    setRemoveList([]);
-    setEdit(false);
+  const confirm = () => {
+    if (!edited) return;
+
+    dispatch(updatePantry({ userId: sessionUser.id, ingredients: newPantry }))
+      .then(() => {
+        setAddList([]);
+        setRemoveList([]);
+      });
   };
 
-  const confirm = async () => {
-    if (addList.length) {
-      await dispatch(addToPantry({ userId: sessionUser.id, ingredients: addList }));
-    }
-    if (removeList.length) {
-      await dispatch(removeFromPantry({ userId: sessionUser.id, ingredients: removeList }));
-    }
+  const cancel = () => {
+    setAddList([]);
+    setRemoveList([]);
+    setNewPantry(pantry);
+  };
 
-    reset();
+  const addIngredient = (ingredient) => {
+    if (pantry.some(p => p.name === ingredient.name)) {
+      setNewPantry(prev => [...prev, ingredient]);
+      setRemoveList(prev => prev.filter(i => i.name !== ingredient.name));
+    }
+    else {
+      setNewPantry(prev => [...prev, ingredient]);
+      setAddList(prev => [...prev, ingredient]);
+    }
+  };
+
+  const removeIngredient = (ingredient) => {
+    if (pantry.some(p => p.name === ingredient.name)) {
+      setNewPantry(prev => prev.filter(i => i.name !== ingredient.name));
+      setRemoveList(prev => [...prev, ingredient]);
+    }
+    else {
+      setNewPantry(prev => prev.filter(i => i.name !== ingredient.name));
+      setAddList(prev => prev.filter(i => i.name !== ingredient.name));
+    }
   };
 
   return (
     <Drawer
-      id="pantry"
       variant="permanent"
       anchor="right"
       sx={{
         width: 350,
         flexShrink: 0,
-        '& .MuiDrawer-paper': { width: 350, p: 3, boxSizing: 'border-box' },
+        '& .MuiDrawer-paper': {
+          width: 350,
+          boxSizing: 'border-box',
+          position: 'relative',
+        },
       }}
     >
       <Toolbar />
-      {edit && (
-        <>
+      <Box sx={{
+        height: 1,
+        pb: 1.5,
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'auto',
+      }}
+      >
+        <Box sx={{
+          position: 'absolute',
+          top: 64,
+          left: 0,
+          right: 0,
+          zIndex: 'appBar',
+        }}
+        >
+          <Typography
+            fontWeight="bold"
+            variant="h6"
+            textAlign="center"
+            sx={{
+              p: 3,
+              bgcolor: 'primary.main',
+            }}
+          >
+            My Pantry
+          </Typography>
           <Autocomplete
             multiple
+            autoHighlight
+            disableClearable
             id="searchIngredients"
-            options={options}
-            value={addList}
-            onChange={(e, newValue) => setAddList(newValue)}
+            options={ingredients.sort((a, b) => a.name.localeCompare(b.name))}
+            value={newPantry}
+            onChange={(_event, _value, reason, { option }) => {
+              if (reason === 'selectOption') {
+                addIngredient(option);
+              }
+              else if (reason === 'removeOption') {
+                removeIngredient(option);
+              }
+            }}
             inputValue={input}
-            onInputChange={(e, newInputValue) => setInput(newInputValue)}
+            onInputChange={(_event, value) => setInput(value)}
             getOptionLabel={option => option.name}
             isOptionEqualToValue={(option, value) => option.name === value.name}
             renderInput={params => (
               <TextField
                 {...params}
+                size="small"
                 placeholder="Search for ingredients"
               />
             )}
             renderTags={() => null}
+            sx={{
+              p: 3,
+              bgcolor: '#fff',
+            }}
           />
-          <Box>
-            <Typography>To be added:</Typography>
-            <Box
-              component="ul"
-              sx={{
-                m: 0,
-                p: 0,
-                display: 'flex',
-                justifyContent: 'start',
-                flexWrap: 'wrap',
-                gap: 1,
-              }}
-            >
-              {addList.map(ingredient => (
-                <Chip
-                  key={ingredient.name}
-                  component="li"
-                  icon={ingredient.verified && <Verified fontSize="small" />}
-                  label={ingredient.name}
-                  onDelete={() => setAddList(prev => prev.filter(i => i.name !== ingredient.name))}
-                />
-              ))}
-            </Box>
+        </Box>
+        <Box sx={{
+          height: 1,
+          minHeight: 350,
+          mt: 21,
+          py: 1.5,
+          px: 3,
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'auto',
+        }}
+        >
+          <Box
+            component="ul"
+            sx={{
+              m: 0,
+              p: 0,
+              display: 'flex',
+              justifyContent: 'center',
+              flexWrap: 'wrap',
+              gap: 1.5,
+            }}
+          >
+            {[...newPantry, ...removeList]
+              .sort((a, b) => a.name.localeCompare(b.name))
+              .map((ingredient) => {
+                if (addList.some(a => a.name === ingredient.name)) {
+                  return (
+                    <Chip
+                      key={ingredient.name}
+                      component="li"
+                      color="success"
+                      icon={ingredient.verified && <Verified fontSize="small" />}
+                      label={ingredient.name}
+                      onClick={() => removeIngredient(ingredient)}
+                    />
+                  );
+                }
+                if (removeList.some(r => r.name === ingredient.name)) {
+                  return (
+                    <Chip
+                      key={ingredient.name}
+                      component="li"
+                      color="error"
+                      icon={ingredient.verified && <Verified fontSize="small" />}
+                      label={ingredient.name}
+                      onClick={() => addIngredient(ingredient)}
+                    />
+                  );
+                }
+                return (
+                  <Chip
+                    key={ingredient.name}
+                    component="li"
+                    color="primary"
+                    icon={ingredient.verified && <Verified fontSize="small" />}
+                    label={ingredient.name}
+                    onClick={() => removeIngredient(ingredient)}
+                  />
+                );
+              })}
           </Box>
-          <Box>
-            <Typography>To be removed:</Typography>
-            <Box
-              component="ul"
-              sx={{
-                m: 0,
-                p: 0,
-                display: 'flex',
-                justifyContent: 'start',
-                flexWrap: 'wrap',
-                gap: 1,
-              }}
-            >
-              {removeList.map(ingredient => (
-                <Chip
-                  key={ingredient.name}
-                  component="li"
-                  icon={ingredient.verified && <Verified fontSize="small" />}
-                  label={ingredient.name}
-                  onDelete={() => setRemoveList(prev => prev
-                    .filter(i => i.name !== ingredient.name))}
-                />
-              ))}
-            </Box>
-          </Box>
-        </>
-      )}
-      <Box>
-        <Typography>My ingredients:</Typography>
-        <Box
-          component="ul"
-          sx={{
-            m: 0,
-            p: 0,
+        </Box>
+        {edited && (
+          <Box sx={{
+            py: 1.5,
+            px: 3,
             display: 'flex',
-            justifyContent: 'start',
-            flexWrap: 'wrap',
+            justifyContent: 'center',
             gap: 1,
           }}
-        >
-          {pantry.filter(i => !removeList.some(r => r.id === i.id)).map(ingredient => (
-            <Chip
-              key={ingredient.name}
-              component="li"
-              icon={ingredient.verified && <Verified fontSize="small" />}
-              label={ingredient.name}
-              onDelete={edit ? () => setRemoveList(prev => [...prev, ingredient]) : undefined}
-            />
-          ))}
-        </Box>
-      </Box>
-      <Box sx={{
-        position: 'absolute',
-        bottom: 24,
-      }}
-      >
-        {edit ? (
-          <>
+          >
             <Button
               variant="contained"
               onClick={confirm}
+              sx={{ width: 1 }}
             >
               Confirm
             </Button>
             <Button
               variant="contained"
-              onClick={reset}
+              onClick={cancel}
+              sx={{ width: 1 }}
             >
               Cancel
             </Button>
-          </>
-        ) : (
-          <Button
-            variant="contained"
-            onClick={() => setEdit(true)}
-          >
-            Edit
-          </Button>
+          </Box>
         )}
       </Box>
     </Drawer>

@@ -18,10 +18,10 @@ def get_pantry(user_id):
         return {'message': 'User not found.'}, 404
 
 
-@users.post('/<int:user_id>/pantry')
-def add_to_pantry(user_id):
+@users.put('/<int:user_id>/pantry')
+def update_pantry(user_id):
     """
-    Add ingredients to a user's pantry
+    Update ingredients in a user's pantry
     """
     form = IngredientsForm()
     form.process(data=request.json)
@@ -45,33 +45,7 @@ def add_to_pantry(user_id):
         ingredients = [get_from_db(data)
                        for data in form.data.get('ingredients')]
 
-        user.pantry.extend(ingredients)
-        db.session.commit()
-
-        return {'pantry': user.to_dict().get('pantry')}
-    else:
-        return {'errors': form.errors}, 401
-
-
-@users.delete('/<int:user_id>/pantry')
-def remove_from_pantry(user_id):
-    """
-    Remove ingredients from a user's pantry
-    """
-    form = IngredientsForm()
-    form.process(data=request.json)
-    form.csrf_token.data = request.cookies.get('csrf_token')
-
-    if form.validate_on_submit():
-        user = db.session.get(User, user_id)
-
-        ingredients = [db.session.get(Ingredient, data.get('id'))
-                       for data in form.data.get('ingredients')]
-
-        for ingredient in ingredients:
-            if ingredient in user.pantry:
-                user.pantry.remove(ingredient)
-
+        user.pantry = ingredients
         db.session.commit()
 
         return {'pantry': user.to_dict().get('pantry')}
