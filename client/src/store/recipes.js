@@ -64,7 +64,7 @@ const recipesSlice = createSlice({
         recipesAdapter.upsertOne(state, payload);
       })
       .addCase(removeRecipe.fulfilled, (state, { payload }) => {
-        recipesAdapter.removeOne(state, { payload });
+        recipesAdapter.removeOne(state, payload);
       });
   },
 });
