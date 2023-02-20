@@ -10,19 +10,10 @@ export const getPantry = createAsyncThunk(
   },
 );
 
-export const addToPantry = createAsyncThunk(
-  'pantry/add',
+export const updatePantry = createAsyncThunk(
+  'pantry/update',
   async ({ userId, ingredients }) => {
-    const res = await axios.post(`/api/users/${userId}/pantry`, { ingredients });
-
-    return res.data.pantry;
-  },
-);
-
-export const removeFromPantry = createAsyncThunk(
-  'pantry/remove',
-  async ({ userId, ingredients }) => {
-    const res = await axios.delete(`/api/users/${userId}/pantry`, { data: { ingredients } });
+    const res = await axios.put(`/api/users/${userId}/pantry`, { ingredients });
 
     return res.data.pantry;
   },
@@ -37,8 +28,7 @@ const pantrySlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(getPantry.fulfilled, pantryAdapter.setAll)
-      .addCase(addToPantry.fulfilled, pantryAdapter.setAll)
-      .addCase(removeFromPantry.fulfilled, pantryAdapter.setAll);
+      .addCase(updatePantry.fulfilled, pantryAdapter.setAll);
   },
 });
 

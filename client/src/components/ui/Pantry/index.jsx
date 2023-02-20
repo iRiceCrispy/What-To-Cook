@@ -1,179 +1,225 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { Autocomplete, Box, Button, Chip, Drawer, TextField, Toolbar, Typography } from '@mui/material';
+import { Verified } from '@mui/icons-material';
 import { ingredientsSelectors } from '../../../store/ingredients';
 import { getSessionUser } from '../../../store/session';
-import { addToPantry, removeFromPantry, pantrySelectors } from '../../../store/pantry';
-import './index.scss';
+import { updatePantry, pantrySelectors } from '../../../store/pantry';
 
 const Pantry = () => {
   const dispatch = useDispatch();
   const sessionUser = useSelector(getSessionUser);
   const ingredients = useSelector(ingredientsSelectors.selectAll);
   const pantry = useSelector(pantrySelectors.selectAll);
+  const [newPantry, setNewPantry] = useState(pantry);
   const [addList, setAddList] = useState([]);
   const [removeList, setRemoveList] = useState([]);
   const [input, setInput] = useState('');
-  const [edit, setEdit] = useState(false);
-  const [showMenu, setShowMenu] = useState(false);
-  const ref = useRef(null);
 
-  const options = ingredients.filter(il => il.name.includes(input)
-    && !pantry.some(i => i.id === il.id)
-    && !addList.some(i => i.id === il.id));
+  const edited = Boolean(addList.length || removeList.length);
 
-  const reset = () => {
-    setInput('');
+  const confirm = () => {
+    if (!edited) return;
+
+    dispatch(updatePantry({ userId: sessionUser.id, ingredients: newPantry }))
+      .then(() => {
+        setAddList([]);
+        setRemoveList([]);
+      });
+  };
+
+  const cancel = () => {
     setAddList([]);
     setRemoveList([]);
-    setEdit(false);
+    setNewPantry(pantry);
   };
 
-  const confirm = async () => {
-    if (addList.length) {
-      await dispatch(addToPantry({ userId: sessionUser.id, ingredients: addList }));
+  const addIngredient = (ingredient) => {
+    if (pantry.some(p => p.name === ingredient.name)) {
+      setNewPantry(prev => [...prev, ingredient]);
+      setRemoveList(prev => prev.filter(i => i.name !== ingredient.name));
     }
-    if (removeList.length) {
-      await dispatch(removeFromPantry({ userId: sessionUser.id, ingredients: removeList }));
+    else {
+      setNewPantry(prev => [...prev, ingredient]);
+      setAddList(prev => [...prev, ingredient]);
     }
-
-    reset();
   };
 
-  useEffect(() => {
-    const closeMenu = (e) => {
-      if (ref.current && !ref.current.contains(e.target)) setShowMenu(false);
-    };
-
-    document.addEventListener('click', closeMenu);
-
-    return () => document.removeEventListener('click', closeMenu);
-  }, []);
+  const removeIngredient = (ingredient) => {
+    if (pantry.some(p => p.name === ingredient.name)) {
+      setNewPantry(prev => prev.filter(i => i.name !== ingredient.name));
+      setRemoveList(prev => [...prev, ingredient]);
+    }
+    else {
+      setNewPantry(prev => prev.filter(i => i.name !== ingredient.name));
+      setAddList(prev => prev.filter(i => i.name !== ingredient.name));
+    }
+  };
 
   return (
-    <div className="pantry">
-      {edit && (
-        <>
-          <div className="searchIngredients" ref={ref}>
-            <input
-              className="input"
-              value={input}
-              onClick={() => setShowMenu(!showMenu)}
-              onChange={e => setInput(e.target.value)}
-            />
-            {showMenu && (
-              <ul className="options">
-                {options.map(option => (
-                  <li
-                    className="option"
-                    key={option.id}
-                    role="menuitem"
-                    tabIndex={0}
-                    onClick={() => setAddList(prev => [...prev, option])}
-                  >
-                    <span>(+)</span>
-                    {option.verified && <span>✔️</span>}
-                    <span>{option.name}</span>
-                  </li>
-                ))}
-              </ul>
+    <Drawer
+      variant="permanent"
+      anchor="right"
+      sx={{
+        width: 350,
+        flexShrink: 0,
+        '& .MuiDrawer-paper': {
+          width: 350,
+          boxSizing: 'border-box',
+          position: 'relative',
+        },
+      }}
+    >
+      <Toolbar />
+      <Box sx={{
+        height: 1,
+        pb: 1.5,
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'auto',
+      }}
+      >
+        <Box sx={{
+          position: 'absolute',
+          top: 64,
+          left: 0,
+          right: 0,
+          zIndex: 'appBar',
+        }}
+        >
+          <Typography
+            fontWeight="bold"
+            variant="h6"
+            textAlign="center"
+            sx={{
+              p: 3,
+              bgcolor: 'primary.main',
+            }}
+          >
+            My Pantry
+          </Typography>
+          <Autocomplete
+            multiple
+            autoHighlight
+            disableClearable
+            id="searchIngredients"
+            options={ingredients.sort((a, b) => a.name.localeCompare(b.name))}
+            value={newPantry}
+            onChange={(_event, _value, reason, { option }) => {
+              if (reason === 'selectOption') {
+                addIngredient(option);
+              }
+              else if (reason === 'removeOption') {
+                removeIngredient(option);
+              }
+            }}
+            inputValue={input}
+            onInputChange={(_event, value) => setInput(value)}
+            getOptionLabel={option => option.name}
+            isOptionEqualToValue={(option, value) => option.name === value.name}
+            renderInput={params => (
+              <TextField
+                {...params}
+                size="small"
+                placeholder="Search for ingredients"
+              />
             )}
-          </div>
-          <div className="addList">
-            <p>To be added:</p>
-            <ul className="ingredientList">
-              {addList.map(ingredient => (
-                <li
-                  className="ingredient"
-                  key={ingredient.id || ingredient.name}
-                  role="menuitem"
-                  tabIndex={0}
-                  onClick={() => setAddList(prev => prev.filter(i => i.name !== ingredient.name))}
-                >
-                  <span>(-)</span>
-                  <span>{ingredient.name}</span>
-                  {ingredient.verified && <span>✔️</span>}
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div className="removeList">
-            <p>To be removed:</p>
-            <ul className="ingredientList">
-              {removeList.map(ingredient => (
-                <li
-                  className="ingredient"
-                  key={ingredient.id}
-                  role="menuitem"
-                  tabIndex={0}
-                  onClick={() => setRemoveList(prev => prev
-                    .filter(i => i.name !== ingredient.name))}
-                >
-                  <span>(+)</span>
-                  <span>{ingredient.name}</span>
-                  {ingredient.verified && <span>✔️</span>}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </>
-      )}
-      <div className="ingredients">
-        <p>My ingredients:</p>
-        <ul className="ingredientList">
-          {edit ? (
-            pantry.filter(i => !removeList.some(r => r.id === i.id)).map(ingredient => (
-              <li
-                className="ingredient"
-                key={ingredient.id}
-                role="menuitem"
-                tabIndex={0}
-                onClick={() => setRemoveList(prev => [...prev, ingredient])}
-              >
-                <span>(-)</span>
-                <span>{ingredient.name}</span>
-                {ingredient.verified && <span>✔️</span>}
-              </li>
-            ))
-          ) : (
-            pantry.map(ingredient => (
-              <li className="ingredient" key={ingredient.id}>
-                <span>{ingredient.name}</span>
-                {' '}
-                {ingredient.verified && <span>✔️</span>}
-              </li>
-            ))
-          )}
-        </ul>
-      </div>
-      <div className="buttons">
-        {edit ? (
-          <>
-            <button
-              className="btn"
-              type="button"
+            renderTags={() => null}
+            sx={{
+              p: 3,
+              bgcolor: '#fff',
+            }}
+          />
+        </Box>
+        <Box sx={{
+          height: 1,
+          minHeight: 350,
+          mt: 21,
+          py: 1.5,
+          px: 3,
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'auto',
+        }}
+        >
+          <Box
+            component="ul"
+            sx={{
+              m: 0,
+              p: 0,
+              display: 'flex',
+              justifyContent: 'center',
+              flexWrap: 'wrap',
+              gap: 1.5,
+            }}
+          >
+            {[...newPantry, ...removeList]
+              .sort((a, b) => a.name.localeCompare(b.name))
+              .map((ingredient) => {
+                if (addList.some(a => a.name === ingredient.name)) {
+                  return (
+                    <Chip
+                      key={ingredient.name}
+                      component="li"
+                      color="success"
+                      icon={ingredient.verified && <Verified fontSize="small" />}
+                      label={ingredient.name}
+                      onClick={() => removeIngredient(ingredient)}
+                    />
+                  );
+                }
+                if (removeList.some(r => r.name === ingredient.name)) {
+                  return (
+                    <Chip
+                      key={ingredient.name}
+                      component="li"
+                      color="error"
+                      icon={ingredient.verified && <Verified fontSize="small" />}
+                      label={ingredient.name}
+                      onClick={() => addIngredient(ingredient)}
+                    />
+                  );
+                }
+                return (
+                  <Chip
+                    key={ingredient.name}
+                    component="li"
+                    color="primary"
+                    icon={ingredient.verified && <Verified fontSize="small" />}
+                    label={ingredient.name}
+                    onClick={() => removeIngredient(ingredient)}
+                  />
+                );
+              })}
+          </Box>
+        </Box>
+        {edited && (
+          <Box sx={{
+            py: 1.5,
+            px: 3,
+            display: 'flex',
+            justifyContent: 'center',
+            gap: 1,
+          }}
+          >
+            <Button
+              variant="contained"
               onClick={confirm}
+              sx={{ width: 1 }}
             >
               Confirm
-            </button>
-            <button
-              className="btn"
-              type="button"
-              onClick={reset}
+            </Button>
+            <Button
+              variant="contained"
+              onClick={cancel}
+              sx={{ width: 1 }}
             >
               Cancel
-            </button>
-          </>
-        ) : (
-          <button
-            className="btn"
-            type="button"
-            onClick={() => setEdit(true)}
-          >
-            Edit
-          </button>
+            </Button>
+          </Box>
         )}
-      </div>
-    </div>
+      </Box>
+    </Drawer>
   );
 };
 

@@ -9,8 +9,8 @@ import Splash from './pages/Splash';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
-import RecipeDetails from './components/ui/RecipeDetails';
-import RecipeForm from './components/forms/RecipeForm';
+import RecipeDetails from './pages/RecipeDetails';
+import RecipeForm from './pages/RecipeForm';
 
 const App = () => {
   const dispatch = useDispatch();
@@ -51,7 +51,7 @@ const App = () => {
         />
         <Route
           path="/recipes/create"
-          element={<RecipeForm />}
+          element={<RecipeForm key="create" />}
         />
         <Route
           path="/recipes/:id"
@@ -59,7 +59,7 @@ const App = () => {
         />
         <Route
           path="/recipes/:id/edit"
-          element={<RecipeForm edit />}
+          element={<RecipeForm key="edit" edit />}
         />
         <Route
           path="*"

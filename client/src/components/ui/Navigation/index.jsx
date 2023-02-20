@@ -1,43 +1,123 @@
-import React from 'react';
-import { useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
-import { getSessionUser } from '../../../store/session';
-import Profile from './Profile';
-import './index.scss';
+import React, { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { AppBar, Toolbar, Button, Menu, Link, Typography, Box, MenuItem, IconButton } from '@mui/material';
+import { AccountCircle } from '@mui/icons-material';
+import { styled } from '@mui/material/styles';
+import { getSessionUser, logout } from '../../../store/session';
 
 const Navigation = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const sessionUser = useSelector(getSessionUser);
+  const [anchorEl, setAnchorEl] = useState(null);
+
+  const openMenu = (e) => {
+    setAnchorEl(e.currentTarget);
+  };
+
+  const closeMenu = () => {
+    setAnchorEl(null);
+  };
+
+  const handleLogout = () => {
+    dispatch(logout())
+      .then(() => navigate('/'));
+  };
+
+  const NavButton = styled(Button)(() => ({
+    color: 'inherit',
+    fontWeight: 'bold',
+    size: 'large',
+  }));
 
   return (
-    <nav id="mainNav">
-      <div className="navbar">
-        <div className="start">
-          <div className="logo">
-            <Link to="/">
-              What To Cook
-            </Link>
-          </div>
-        </div>
-        <div className="center">
-          <Link to="/recipes/create">Create Recipe</Link>
-        </div>
-        <div className="end">
-          {sessionUser
-            ? (
-              <>
-                <Link to="/dashboard">Dashboard</Link>
-                <Profile user={sessionUser} />
-              </>
-            )
-            : (
-              <>
-                <Link className="btn transparent" to="/login">Log In</Link>
-                <Link className="btn transparent" to="/signup">Sign Up</Link>
-              </>
-            )}
-        </div>
-      </div>
-    </nav>
+    <AppBar
+      color="secondary"
+      position="fixed"
+    >
+      <Toolbar>
+        <Typography
+          variant="h5"
+          noWrap
+          component={Link}
+          to="/"
+          sx={{
+            fontWeight: 'bold',
+            color: 'inherit',
+            textDecoration: 'none',
+          }}
+        >
+          What To Cook
+        </Typography>
+        <Box sx={{
+          display: 'flex',
+          justifyContent: 'start',
+          flexGrow: 1,
+          mx: 6,
+        }}
+        >
+          <NavButton
+            component={Link}
+            to="/recipes/create"
+          >
+            Create Recipe
+          </NavButton>
+        </Box>
+        <Box sx={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 4,
+        }}
+        >
+          {sessionUser ? (
+            <>
+              <NavButton
+                component={Link}
+                to="/dashboard"
+              >
+                Dashboard
+              </NavButton>
+              <IconButton
+                color="inherit"
+                onClick={openMenu}
+                sx={{
+                  height: 'min-content',
+                  width: 'min-content',
+                  p: 0,
+                }}
+              >
+                <AccountCircle sx={{ color: 'inherit' }} fontSize="large" />
+              </IconButton>
+              <Menu
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl)}
+                onClose={closeMenu}
+              >
+                <MenuItem>{sessionUser.username}</MenuItem>
+                <MenuItem>{sessionUser.email}</MenuItem>
+                <MenuItem onClick={handleLogout}>Log Out</MenuItem>
+              </Menu>
+            </>
+          ) : (
+            <>
+              <NavButton
+                component={Link}
+                to="/login"
+              >
+                Login
+              </NavButton>
+              <NavButton
+                component={Link}
+                to="/signup"
+              >
+                Sign up
+              </NavButton>
+            </>
+          )}
+        </Box>
+      </Toolbar>
+    </AppBar>
   );
 };
 

@@ -1,11 +1,11 @@
 import React from 'react';
-import Navigation from '../../components/ui/Navigation';
+import { Typography } from '@mui/material';
+import MainLayout from '../../layouts/MainLayout';
 
 const Splash = () => (
-  <div id="splash">
-    <Navigation />
-    <h1>Welcome</h1>
-  </div>
+  <MainLayout>
+    <Typography>Welcome</Typography>
+  </MainLayout>
 );
 
 export default Splash;

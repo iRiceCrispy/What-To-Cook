@@ -1,44 +1,93 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
+import { Box, Card, CardActionArea, CardContent, CardMedia, Grid, Link, Typography } from '@mui/material';
 import { recipesSelectors } from '../../../store/recipes';
 import { pantrySelectors } from '../../../store/pantry';
-import './index.scss';
 
 const Recipes = () => {
   const pantry = useSelector(pantrySelectors.selectAll);
   const recipes = useSelector(recipesSelectors.selectAll);
 
   return (
-    <div className="recipes">
-      <h1>Recipes:</h1>
-      <ul className="recipeList">
+    <Box
+      sx={{
+        height: 1,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        flexGrow: 1,
+        overflow: 'auto',
+      }}
+    >
+      <Typography component="h1" variant="h4">Recipes:</Typography>
+      <Grid
+        container
+        sx={{
+          mt: 6,
+          pb: 1,
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, 250px)',
+          justifyContent: 'center',
+          gap: 2,
+        }}
+      >
         {recipes.map(recipe => (
-          <li key={recipe.id}>
-            <Link className="recipe" to={`/recipes/${recipe.id}`}>
-              <p className="name">{recipe.name}</p>
-              <p className="description">{recipe.description}</p>
-              <p>
-                By:
-                {' '}
-                {recipe.user.username}
-              </p>
-              <div className="matchingIngredients">
-                <span>
-                  You have
-                  {' '}
-                  {recipe.ingredients.filter(i => pantry.some(pi => pi.id === i.id)).length}
-                  /
-                  {recipe.ingredients.length}
-                  {' '}
-                  required ingredients.
-                </span>
-              </div>
-            </Link>
-          </li>
+          <Grid item key={recipe.id}>
+            <Card sx={{
+              height: 300,
+              width: 250,
+            }}
+            >
+              <CardActionArea
+                component={Link}
+                to={`/recipes/${recipe.id}`}
+                sx={{ height: 1 }}
+              >
+                <CardMedia
+                  component="div"
+                  title={recipe.name}
+                  sx={{
+                    height: 0.5,
+                    bgcolor: '#ccc',
+                  }}
+                />
+                <CardContent sx={{
+                  height: 0.5,
+                  display: 'flex',
+                  flexDirection: 'column',
+                }}
+                >
+                  <Typography variant="h6">{recipe.name}</Typography>
+                  <Typography variant="body2">{recipe.description}</Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{ mt: 'auto' }}
+                  >
+                    By:
+                    {' '}
+                    {recipe.user.username}
+                  </Typography>
+                  <Box sx={{
+                    position: 'absolute',
+                    top: 8,
+                    right: 8,
+                  }}
+                  >
+                    <Typography variant="body2">
+                      {' '}
+                      {recipe.ingredients.filter(i => pantry.some(pi => pi.id === i.id)).length}
+                      /
+                      {recipe.ingredients.length}
+                      {' '}
+                    </Typography>
+                  </Box>
+                </CardContent>
+              </CardActionArea>
+            </Card>
+          </Grid>
         ))}
-      </ul>
-    </div>
+      </Grid>
+    </Box>
   );
 };
 

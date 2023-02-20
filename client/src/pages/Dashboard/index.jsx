@@ -1,15 +1,17 @@
 import React from 'react';
-import Pantry from '../../components/ui/Pantry';
-import Navigation from '../../components/ui/Navigation';
+import { Container } from '@mui/material';
 import Recipes from '../../components/ui/Recipes';
-import './index.scss';
+import MainLayout from '../../layouts/MainLayout';
 
 const Dashboard = () => (
-  <div id="dashboard">
-    <Navigation />
-    <Pantry />
-    <Recipes />
-  </div>
+  <MainLayout>
+    <Container
+      disableGutters
+      sx={{ p: 8 }}
+    >
+      <Recipes />
+    </Container>
+  </MainLayout>
 );
 
 export default Dashboard;

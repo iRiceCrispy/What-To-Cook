@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
+import { Button, Box, Link, TextField, Typography } from '@mui/material';
 import { signup } from '../../store/session';
 
 const SignupForm = () => {
@@ -32,72 +33,92 @@ const SignupForm = () => {
   };
 
   return (
-    <form id="loginForm" className="form" onSubmit={handleSignup}>
-      <header>
-        <h2>Create an account</h2>
-      </header>
-      <main>
-        <div className="formField">
-          <label htmlFor="username">Username</label>
-          <div className="inputContainer">
-            <input
-              className="input"
-              id="username"
-              value={username}
-              onChange={e => setUsername(e.target.value)}
-            />
-            <p className="error">{errors.username}</p>
-          </div>
-        </div>
-        <div className="formField">
-          <label htmlFor="email">Email</label>
-          <div className="inputContainer">
-            <input
-              className="input"
-              id="email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-            />
-            <p className="error">{errors.email}</p>
-          </div>
-        </div>
-        <div className="formField">
-          <label htmlFor="password">Password</label>
-          <div className="inputContainer">
-            <input
-              className="input"
-              id="password"
-              type="password"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-            />
-            <p className="error">{errors.password}</p>
-          </div>
-        </div>
-        <div className="formField">
-          <label htmlFor="confirmPassword">Confirm Password</label>
-          <div className="inputContainer">
-            <input
-              className="input"
-              id="confirmPassword"
-              type="password"
-              value={confirmPassword}
-              onChange={e => setConfirmPassword(e.target.value)}
-            />
-            <p className="error">{errors.confirmPassword}</p>
-          </div>
-        </div>
-      </main>
-      <footer>
-        <div className="buttons">
-          <button className="btn" type="submit">Sign up</button>
-        </div>
-        <div className="text">
-          <span>Already registered? </span>
-          <Link className="underline" to="/login">Log in here.</Link>
-        </div>
-      </footer>
-    </form>
+    <Box
+      component="form"
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+      onSubmit={handleSignup}
+    >
+      <Box component="header">
+        <Typography component="h2" variant="h5" align="center">Create an account</Typography>
+      </Box>
+      <Box
+        component="main"
+        sx={{
+          mt: 8,
+          mb: 6,
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          flexGrow: 1,
+          gap: 2,
+        }}
+      >
+        <TextField
+          error={Boolean(errors.username)}
+          id="username"
+          label="Username"
+          value={username}
+          helperText={errors.username}
+          onChange={e => setUsername(e.target.value)}
+        />
+        <TextField
+          error={Boolean(errors.email)}
+          id="email"
+          label="Email"
+          value={email}
+          helperText={errors.email}
+          onChange={e => setEmail(e.target.value)}
+        />
+        <TextField
+          error={Boolean(errors.password)}
+          id="password"
+          label="Password"
+          value={password}
+          type="password"
+          helperText={errors.password}
+          onChange={e => setPassword(e.target.value)}
+        />
+        <TextField
+          error={Boolean(errors.confirmPassword)}
+          id="confirmPassword"
+          label="Confirm Password"
+          value={confirmPassword}
+          type="password"
+          helperText={errors.confirmPassword}
+          onChange={e => setConfirmPassword(e.target.value)}
+        />
+      </Box>
+      <Box
+        component="footer"
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 4,
+        }}
+      >
+        <Box>
+          <Button
+            variant="contained"
+            type="submit"
+            sx={{ width: 1 }}
+          >
+            Sign Up
+          </Button>
+        </Box>
+        <Box sx={{
+          display: 'flex',
+          justifyContent: 'center',
+        }}
+        >
+          <Typography>Already registered?</Typography>
+          <Typography>&nbsp;</Typography>
+          <Typography component={Link} to="/login">Log in here.</Typography>
+        </Box>
+      </Box>
+    </Box>
   );
 };
 

@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
+import { Autocomplete, Button, Box, List, ListItem, TextField, Typography } from '@mui/material';
 import { recipesSelectors, addRecipe, updateRecipe } from '../../store/recipes';
 import { ingredientsSelectors } from '../../store/ingredients';
-import './index.scss';
 
 const RecipeForm = ({ edit }) => {
   const dispatch = useDispatch();
@@ -17,9 +17,6 @@ const RecipeForm = ({ edit }) => {
   const [ingredients, setIngredients] = useState(edit ? recipe.ingredients : []);
   const [instructions, setInstructions] = useState(edit ? recipe.instructions.map(i => i.body) : ['']);
   const [errors, setErrors] = useState({});
-
-  const options = ingredientList.filter(il => il.name.includes(ingredientInput)
-    && !ingredients.some(i => i.id === il.id));
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -58,118 +55,113 @@ const RecipeForm = ({ edit }) => {
   };
 
   return (
-    <form id="recipeForm" onSubmit={handleSubmit}>
-      <header>
-        <h2>Create your recipe</h2>
-      </header>
-      <main>
-        <div className="formField">
-          <label htmlFor="name">Name</label>
-          <div className="inputContainer">
-            <input
-              className="input"
-              id="name"
-              value={name}
-              onChange={e => setName(e.target.value)}
+    <Box
+      component="form"
+      onSubmit={handleSubmit}
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
+      <Box component="header">
+        <Typography component="h2" variant="h5" align="center">{edit ? `Edit for ${recipe.name}` : 'Create your recipe'}</Typography>
+      </Box>
+      <Box
+        component="main"
+        sx={{
+          mt: 8,
+          mb: 6,
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          flexGrow: 1,
+          gap: 2,
+        }}
+      >
+        <TextField
+          error={Boolean(errors.name)}
+          id="name"
+          label="Name"
+          value={name}
+          helperText={errors.name}
+          onChange={e => setName(e.target.value)}
+        />
+        <TextField
+          multiline
+          minRows={3}
+          error={Boolean(errors.description)}
+          id="description"
+          label="Description"
+          value={description}
+          helperText={errors.description}
+          onChange={e => setDescription(e.target.value)}
+        />
+        <Autocomplete
+          multiple
+          id="ingredients"
+          options={ingredientList}
+          value={ingredients}
+          onChange={(e, newValue) => setIngredients(newValue)}
+          inputValue={ingredientInput}
+          onInputChange={(e, newInputValue) => setIngredientInput(newInputValue)}
+          getOptionLabel={option => option.name}
+          isOptionEqualToValue={(option, value) => option.name === value.name}
+          renderInput={params => (
+            <TextField
+              {...params}
+              error={Boolean(errors.ingredients)}
+              label="Ingredients"
+              helperText={errors.ingredients ? 'Must have at least one ingredient.' : ''}
             />
-            <p className="error">{errors.name}</p>
-          </div>
-        </div>
-        <div className="formField">
-          <label htmlFor="description">Description (optional)</label>
-          <div className="inputContainer">
-            <textarea
-              className="input"
-              id="description"
-              value={description}
-              onChange={e => setDescription(e.target.value)}
-            />
-            <p className="error">{errors.description}</p>
-          </div>
-        </div>
-        <div className="formField">
-          <label htmlFor="ingredients">Ingredients</label>
-          <div className="inputContainer">
-            <ul className="ingredients">
-              {ingredients.map(ingredient => (
-                <li
-                  className="ingredient"
-                  key={ingredient.id}
-                  role="menuitem"
-                  tabIndex={0}
-                  onClick={() => setIngredients(prev => prev.filter(i => i.id !== ingredient.id))}
-                >
-                  <span>{ingredient.name}</span>
-                  <span>(-)</span>
-                </li>
-              ))}
-            </ul>
-            <input
-              className="input"
-              id="ingredients"
-              value={ingredientInput}
-              onChange={e => setIngredientInput(e.target.value)}
-            />
-            <ul className="options">
-              {options.map(option => (
-                <li
-                  className="option"
-                  key={option.id}
-                  role="menuitem"
-                  tabIndex={0}
-                  onClick={() => setIngredients(prev => [...prev, option])}
-                >
-                  <span>{option.name}</span>
-                  <span>(+)</span>
-                </li>
-              ))}
-            </ul>
-            <p className="error">{errors.ingredients ? 'Must have at least one ingredient' : ''}</p>
-          </div>
-          <div className="formField">
-            <ol className="instructions">
-              {instructions.map((instruction, index) => (
-                // eslint-disable-next-line react/no-array-index-key
-                <li className="instruction" key={index}>
-                  <span>
-                    {`${index + 1}. `}
-                  </span>
-                  <textarea
-                    value={instruction}
-                    onChange={e => setInstructions((prev) => {
-                      prev[index] = e.target.value;
-                      return [...prev];
-                    })}
-                  />
-                  {instructions.length > 1 && (
-                    <button
-                      className="btn"
-                      type="button"
-                      onClick={() => setInstructions(prev => prev.filter((_, i) => i !== index))}
-                    >
-                      Remove
-                    </button>
-                  )}
-                  <p className="error">{errors.instructions?.[index]?.body}</p>
-                </li>
-              ))}
-            </ol>
-            <button
-              className="btn"
-              type="button"
-              onClick={() => setInstructions(prev => [...prev, ''])}
-            >
-              Add another instruction
-            </button>
-          </div>
-        </div>
-      </main>
-      <footer>
-        <div className="buttons">
-          <button className="btn" type="submit">{edit ? 'Confirm' : 'Create'}</button>
-        </div>
-      </footer>
-    </form>
+          )}
+        />
+        <Box>
+          <List>
+            {instructions.map((instruction, index) => (
+              <ListItem
+              // eslint-disable-next-line react/no-array-index-key
+                key={index}
+                sx={{
+                  p: 0,
+                  flexDirection: 'column',
+                  alignItems: 'end',
+                }}
+              >
+                <TextField
+                  multiline
+                  variant="standard"
+                  error={Boolean(errors.instructions?.[index]?.body)}
+                  id={`instruction${index + 1}`}
+                  label={`Step ${index + 1}`}
+                  value={instruction}
+                  onChange={e => setInstructions((prev) => {
+                    prev[index] = e.target.value;
+                    return [...prev];
+                  })}
+                  helperText={errors.instructions?.[index]?.body}
+                  sx={{ width: 1 }}
+                />
+                {instructions.length > 1 && (
+                  <Button
+                    onClick={() => setInstructions(prev => prev.filter((_, i) => i !== index))}
+                  >
+                    Remove
+                  </Button>
+                )}
+              </ListItem>
+            ))}
+          </List>
+          <Button
+            onClick={() => setInstructions(prev => [...prev, ''])}
+          >
+            Add another instruction
+          </Button>
+        </Box>
+      </Box>
+      <Box component="footer">
+        <Button variant="contained" type="submit">{edit ? 'Confirm' : 'Create'}</Button>
+      </Box>
+    </Box>
   );
 };
 

@@ -1,20 +1,11 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import SignupForm from '../../components/forms/SignupForm';
-import './index.scss';
+import AuthLayout from '../../layouts/AuthLayout';
 
 const Signup = () => (
-  <div id="signup">
-    <div className="logo">
-      <Link to="/">
-        What To Cook
-      </Link>
-    </div>
-    <div className="formContainer">
-      <SignupForm />
-    </div>
-  </div>
-
+  <AuthLayout>
+    <SignupForm />
+  </AuthLayout>
 );
 
 export default Signup;
