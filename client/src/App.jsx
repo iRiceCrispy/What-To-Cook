@@ -5,7 +5,7 @@ import { getIngredients } from './store/ingredients';
 import { getRecipes } from './store/recipes';
 import { getPantry } from './store/pantry';
 import { restoreSession, getSessionUser } from './store/session';
-import Splash from './pages/Splash';
+import Home from './pages/Home';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
@@ -35,7 +35,7 @@ const App = () => {
       <Routes>
         <Route
           path="/"
-          element={<Splash />}
+          element={<Home />}
         />
         <Route
           path="/login"

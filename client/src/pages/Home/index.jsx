@@ -1,14 +1,12 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { Container, Typography } from '@mui/material';
-import { getRecipesByUser } from '../../store/recipes';
-import { getSessionUser } from '../../store/session';
+import { recipesSelectors } from '../../store/recipes';
 import Recipes from '../../components/ui/Recipes';
 import MainLayout from '../../layouts/MainLayout';
 
-const Dashboard = () => {
-  const sessionUser = useSelector(getSessionUser);
-  const recipes = useSelector(state => getRecipesByUser(state, sessionUser));
+const Home = () => {
+  const recipes = useSelector(recipesSelectors.selectAll);
 
   return (
     <MainLayout>
@@ -21,11 +19,11 @@ const Dashboard = () => {
           alignItems: 'center',
         }}
       >
-        <Typography component="h1" variant="h4">My Recipes</Typography>
-        <Recipes hideUser recipes={recipes} />
+        <Typography component="h1" variant="h4">Recipes</Typography>
+        <Recipes recipes={recipes} />
       </Container>
     </MainLayout>
   );
 };
 
-export default Dashboard;
+export default Home;

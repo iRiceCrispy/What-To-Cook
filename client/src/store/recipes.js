@@ -71,4 +71,7 @@ const recipesSlice = createSlice({
 
 export const recipesSelectors = recipesAdapter.getSelectors(state => state.recipes);
 
+export const getRecipesByUser = (state, user) => recipesSelectors
+  .selectAll(state).filter(recipe => recipe.user.id === user?.id);
+
 export default recipesSlice.reducer;
