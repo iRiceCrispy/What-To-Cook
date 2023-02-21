@@ -10,8 +10,6 @@ const Recipes = ({ recipes, hideUser }) => {
     <Grid
       container
       sx={{
-        mt: 6,
-        pb: 1,
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fill, 250px)',
         justifyContent: 'center',

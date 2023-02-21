@@ -19,6 +19,7 @@ const Dashboard = () => {
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
+          gap: 4,
         }}
       >
         <Typography component="h1" variant="h4">My Recipes</Typography>

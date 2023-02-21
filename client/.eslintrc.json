@@ -53,6 +53,12 @@
       }
     ],
     "react/jsx-props-no-spreading": "off",
+    "react/jsx-no-duplicate-props": [
+      2,
+      {
+        "ignoreCase": false
+      }
+    ],
     "react/prop-types": "off",
     "jsx-a11y/click-events-have-key-events": "off",
     "jsx-a11y/label-has-associated-control": "off"
