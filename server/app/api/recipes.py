@@ -1,6 +1,6 @@
 from flask import Blueprint, request
 from flask_login import login_required
-from app.forms import RecipesForm, RecipeLikesForm
+from app.forms import RecipesForm, RecipeLikesForm, RecipeViewsForm
 from app.models import db, Ingredient, Instruction, Recipe, User
 
 recipes = Blueprint('recipes', __name__)
@@ -128,3 +128,26 @@ def remove_like(id):
         db.session.commit()
 
     return {'likes': recipe.to_dict().get('likes')}
+
+
+@recipes.post('/<int:id>/views')
+def increase_views(id):
+    """
+    Increase view count of a recipe by 1
+    """
+    form = RecipeViewsForm()
+    form.csrf_token.data = request.cookies.get('csrf_token')
+
+    if form.validate_on_submit():
+        recipe = db.session.get(Recipe, id)
+
+        recipe.views += 1
+
+        db.session.commit()
+
+        if recipe:
+            return {'views': recipe.views}
+        else:
+            return {'message': 'recipe not found.'}, 404
+    else:
+        return {'errors': form.errors}, 401
