@@ -1,7 +1,7 @@
 from flask import Blueprint, request
 from flask_login import login_required
-from app.forms import RecipesForm
-from app.models import db, Ingredient, Instruction, Recipe
+from app.forms import RecipesForm, RecipeLikesForm
+from app.models import db, Ingredient, Instruction, Recipe, User
 
 recipes = Blueprint('recipes', __name__)
 
@@ -82,3 +82,49 @@ def delete(id):
     db.session.commit()
 
     return {'message': 'Recipe deleted'}
+
+
+@recipes.post('/<int:id>/likes')
+@login_required
+def add_like(id):
+    """
+    Adds a like to a recipe
+    """
+    form = RecipeLikesForm()
+    form.process(data=request.json)
+    form.csrf_token.data = request.cookies.get('csrf_token')
+
+    if form.validate_on_submit():
+        user_id = form.data.get('user_id')
+
+        recipe = db.session.get(Recipe, id)
+        user = db.session.get(User, user_id)
+
+        recipe.likes.append(user)
+
+        db.session.commit()
+
+    return {'likes': recipe.to_dict().get('likes')}
+
+
+@recipes.delete('/<int:id>/likes')
+@login_required
+def remove_like(id):
+    """
+    Removes a like from a recipe
+    """
+    form = RecipeLikesForm()
+    form.process(data=request.json)
+    form.csrf_token.data = request.cookies.get('csrf_token')
+
+    if form.validate_on_submit():
+        user_id = form.data.get('user_id')
+
+        recipe = db.session.get(Recipe, id)
+        user = db.session.get(User, user_id)
+
+        recipe.likes.remove(user)
+
+        db.session.commit()
+
+    return {'likes': recipe.to_dict().get('likes')}
