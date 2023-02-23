@@ -1,6 +1,7 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { Box, Card, CardActionArea, CardContent, CardMedia, Grid, Link, Typography } from '@mui/material';
+import { ThumbUp } from '@mui/icons-material';
 import { pantrySelectors } from '../../../store/pantry';
 
 const Recipes = ({ recipes, hideUser }) => {
@@ -44,16 +45,32 @@ const Recipes = ({ recipes, hideUser }) => {
               >
                 <Typography variant="h6">{recipe.name}</Typography>
                 <Typography variant="body2">{recipe.description}</Typography>
-                {!hideUser && (
-                  <Typography
-                    variant="body2"
-                    sx={{ mt: 'auto' }}
+                <Box sx={{
+                  mt: 'auto',
+                  display: 'flex',
+                  justifyContent: 'end',
+                  alignItems: 'center',
+                }}
+                >
+                  {!hideUser && (
+                    <Typography
+                      variant="body2"
+                      sx={{ mr: 'auto' }}
+                    >
+                      By:
+                      {' '}
+                      {recipe.user.username}
+                    </Typography>
+                  )}
+                  <Box sx={{
+                    display: 'flex',
+                    gap: '2px',
+                  }}
                   >
-                    By:
-                    {' '}
-                    {recipe.user.username}
-                  </Typography>
-                )}
+                    <Typography>{recipe.likes}</Typography>
+                    <ThumbUp fontSize="small" />
+                  </Box>
+                </Box>
                 <Box sx={{
                   position: 'absolute',
                   top: 8,

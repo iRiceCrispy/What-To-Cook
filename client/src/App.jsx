@@ -4,7 +4,7 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import { getIngredients } from './store/ingredients';
 import { getRecipes } from './store/recipes';
 import { getPantry } from './store/pantry';
-import { restoreSession, getSessionUser } from './store/session';
+import { restoreSession, getSessionUser, fetchLikedRecipes } from './store/session';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
@@ -27,7 +27,10 @@ const App = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    if (sessionUser) dispatch(getPantry(sessionUser.id));
+    if (sessionUser) {
+      dispatch(getPantry(sessionUser.id));
+      dispatch(fetchLikedRecipes());
+    }
   }, [dispatch, sessionUser]);
 
   return isLoaded && (

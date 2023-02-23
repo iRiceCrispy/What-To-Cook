@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { createAsyncThunk, createEntityAdapter, createSlice } from '@reduxjs/toolkit';
+import { fetchLikedRecipes } from './session';
 
 export const getRecipes = createAsyncThunk(
   'recipes/get',
@@ -48,6 +49,28 @@ export const removeRecipe = createAsyncThunk(
   },
 );
 
+export const likeRecipe = createAsyncThunk(
+  'recipes/likes/add',
+  async ({ id, userId }, { dispatch }) => {
+    const res = await axios.post(`/api/recipes/${id}/likes`, { userId });
+
+    await dispatch(fetchLikedRecipes());
+
+    return { id, changes: { likes: res.data.likes } };
+  },
+);
+
+export const unlikeRecipe = createAsyncThunk(
+  'recipes/likes/remove',
+  async ({ id, userId }, { dispatch }) => {
+    const res = await axios.delete(`/api/recipes/${id}/likes`, { data: { userId } });
+
+    await dispatch(fetchLikedRecipes());
+
+    return { id, changes: { likes: res.data.likes } };
+  },
+);
+
 const recipesAdapter = createEntityAdapter();
 const initialState = recipesAdapter.getInitialState();
 
@@ -65,6 +88,12 @@ const recipesSlice = createSlice({
       })
       .addCase(removeRecipe.fulfilled, (state, { payload }) => {
         recipesAdapter.removeOne(state, payload);
+      })
+      .addCase(likeRecipe.fulfilled, (state, { payload }) => {
+        recipesAdapter.updateOne(state, payload);
+      })
+      .addCase(unlikeRecipe.fulfilled, (state, { payload }) => {
+        recipesAdapter.updateOne(state, payload);
       });
   },
 });

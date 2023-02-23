@@ -103,6 +103,18 @@ def add_recipe(user_id):
         return {'errors': form.errors}, 401
 
 
+@users.get('/<int:user_id>/liked_recipes')
+def get_user(user_id):
+    """
+    Get a user's details
+    """
+    user = db.session.get(User, user_id)
+    if user:
+        return {'recipes': user.to_dict().get('liked_recipes')}
+    else:
+        return {'message': 'User not found.'}, 404
+
+
 @users.before_request
 @login_required
 def login_required():

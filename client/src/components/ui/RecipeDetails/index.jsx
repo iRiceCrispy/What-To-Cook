@@ -1,9 +1,10 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Box, Button, Container, List, ListItem, ListItemText, Link, Typography } from '@mui/material';
-import { recipesSelectors, removeRecipe } from '../../../store/recipes';
-import { getSessionUser } from '../../../store/session';
+import { Box, Button, Container, IconButton, List, ListItem, ListItemText, Link, Typography } from '@mui/material';
+import { ThumbUp } from '@mui/icons-material';
+import { likeRecipe, recipesSelectors, removeRecipe, unlikeRecipe } from '../../../store/recipes';
+import { getSessionUser, getLikedRecipes } from '../../../store/session';
 import { pantrySelectors } from '../../../store/pantry';
 
 const RecipeDetails = () => {
@@ -13,11 +14,21 @@ const RecipeDetails = () => {
   const sessionUser = useSelector(getSessionUser);
   const pantry = useSelector(pantrySelectors.selectAll);
   const recipe = useSelector(state => recipesSelectors.selectById(state, id));
+  const isLikedByUser = useSelector(getLikedRecipes).includes(Number(id));
   const isOwner = recipe?.user.id === sessionUser?.id;
 
   const handleDelete = () => {
     dispatch(removeRecipe(id));
     navigate('/dashboard');
+  };
+
+  const handleLike = () => {
+    if (!isLikedByUser) {
+      dispatch(likeRecipe({ id, userId: sessionUser.id }));
+    }
+    else {
+      dispatch(unlikeRecipe({ id, userId: sessionUser.id }));
+    }
   };
 
   return (
@@ -45,6 +56,21 @@ const RecipeDetails = () => {
               <Button variant="contained" onClick={handleDelete}>Delete</Button>
             </Box>
             )}
+            <Box sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '2px',
+            }}
+            >
+              <Typography>{recipe.likes}</Typography>
+              <IconButton
+                disabled={!sessionUser}
+                color={isLikedByUser ? 'success' : 'default'}
+                onClick={handleLike}
+              >
+                <ThumbUp />
+              </IconButton>
+            </Box>
             <Typography variant="body2">
               You have
               {' '}
