@@ -1,7 +1,7 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { Box, Card, CardActionArea, CardContent, CardMedia, Grid, Link, Typography } from '@mui/material';
-import { ThumbUp } from '@mui/icons-material';
+import { ThumbUp, Visibility } from '@mui/icons-material';
 import { pantrySelectors } from '../../../store/pantry';
 
 const Recipes = ({ recipes, hideUser }) => {
@@ -50,6 +50,7 @@ const Recipes = ({ recipes, hideUser }) => {
                   display: 'flex',
                   justifyContent: 'end',
                   alignItems: 'center',
+                  gap: 1,
                 }}
                 >
                   {!hideUser && (
@@ -69,6 +70,14 @@ const Recipes = ({ recipes, hideUser }) => {
                   >
                     <Typography>{recipe.likes}</Typography>
                     <ThumbUp fontSize="small" />
+                  </Box>
+                  <Box sx={{
+                    display: 'flex',
+                    gap: '2px',
+                  }}
+                  >
+                    <Typography>{recipe.views}</Typography>
+                    <Visibility fontSize="small" />
                   </Box>
                 </Box>
                 <Box sx={{

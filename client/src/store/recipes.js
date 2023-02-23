@@ -71,6 +71,15 @@ export const unlikeRecipe = createAsyncThunk(
   },
 );
 
+export const increaseRecipeViewCount = createAsyncThunk(
+  'recipes/views/increase',
+  async (id) => {
+    const res = await axios.post(`/api/recipes/${id}/views`);
+
+    return { id, changes: { views: res.data.views } };
+  },
+);
+
 const recipesAdapter = createEntityAdapter();
 const initialState = recipesAdapter.getInitialState();
 
@@ -93,6 +102,9 @@ const recipesSlice = createSlice({
         recipesAdapter.updateOne(state, payload);
       })
       .addCase(unlikeRecipe.fulfilled, (state, { payload }) => {
+        recipesAdapter.updateOne(state, payload);
+      })
+      .addCase(increaseRecipeViewCount.fulfilled, (state, { payload }) => {
         recipesAdapter.updateOne(state, payload);
       });
   },

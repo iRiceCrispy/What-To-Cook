@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Box, Button, Container, IconButton, List, ListItem, ListItemText, Link, Typography } from '@mui/material';
-import { ThumbUp } from '@mui/icons-material';
-import { likeRecipe, recipesSelectors, removeRecipe, unlikeRecipe } from '../../../store/recipes';
+import { ThumbUp, Visibility } from '@mui/icons-material';
+import { increaseRecipeViewCount, likeRecipe, recipesSelectors, removeRecipe, unlikeRecipe } from '../../../store/recipes';
 import { getSessionUser, getLikedRecipes } from '../../../store/session';
 import { pantrySelectors } from '../../../store/pantry';
 
@@ -30,6 +30,15 @@ const RecipeDetails = () => {
       dispatch(unlikeRecipe({ id, userId: sessionUser.id }));
     }
   };
+
+  useEffect(() => {
+    const time = 5000;
+    const timer = setTimeout(() => {
+      dispatch(increaseRecipeViewCount(id));
+    }, time);
+
+    return () => clearTimeout(timer);
+  }, [dispatch, id]);
 
   return (
     <Box sx={{
@@ -70,6 +79,15 @@ const RecipeDetails = () => {
               >
                 <ThumbUp />
               </IconButton>
+              <Box sx={{
+                display: 'flex',
+                justfiyContent: 'center',
+                gap: 0.5,
+              }}
+              >
+                <Typography>{recipe.views}</Typography>
+                <Visibility />
+              </Box>
             </Box>
             <Typography variant="body2">
               You have
