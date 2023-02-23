@@ -2,6 +2,7 @@ from flask_login import UserMixin
 from werkzeug.security import check_password_hash, generate_password_hash
 from .db import db
 from .pantry import pantry
+from .recipe_like import recipe_like
 
 
 class User(db.Model, UserMixin):
@@ -12,6 +13,8 @@ class User(db.Model, UserMixin):
 
     pantry = db.relationship('Ingredient', secondary=pantry)
     recipes = db.relationship('Recipe', back_populates='user')
+    liked_recipes = db.relationship(
+        'Recipe', secondary=recipe_like, back_populates='likes')
 
     @property
     def password(self):
@@ -37,5 +40,6 @@ class User(db.Model, UserMixin):
             'username': self.username,
             'email': self.email,
             'pantry': [ingredient.to_dict() for ingredient in self.pantry],
-            'recipes': [recipe.to_dict() for recipe in self.recipes]
+            'recipes': [recipe.to_dict() for recipe in self.recipes],
+            'liked_recipes': [recipe.id for recipe in self.liked_recipes]
         }
