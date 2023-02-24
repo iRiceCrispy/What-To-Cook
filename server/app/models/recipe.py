@@ -13,7 +13,9 @@ class Recipe(db.Model):
     user = db.relationship('User', back_populates='recipes')
     ingredients = db.relationship('Ingredient', secondary=recipe_ingredient)
     instructions = db.relationship(
-        'Instruction', back_populates='recipe', cascade="all, delete")
+        'Instruction', back_populates='recipe', cascade='all, delete')
+    images = db.relationship(
+        'Image', back_populates='recipe', cascade='all, delete')
     likes = db.relationship(
         'User', secondary=recipe_like, back_populates='liked_recipes')
 

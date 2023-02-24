@@ -1,4 +1,5 @@
 from .db import db
+from .image import Image
 from .ingredient import Ingredient
 from .instruction import Instruction
 from .recipe import Recipe
