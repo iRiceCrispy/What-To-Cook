@@ -27,6 +27,7 @@ class Recipe(db.Model):
             'user': self.user.to_safe_dict(),
             'ingredients': [ingredient.to_dict() for ingredient in self.ingredients],
             'instructions': [instruction.to_dict() for instruction in self.instructions],
+            'images': [image.to_dict() for image in self.images],
             'likes': len(self.likes),
             'views': self.views
         }

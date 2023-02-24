@@ -1,3 +1,4 @@
+from firebase_admin import storage
 from .db import db
 
 
@@ -10,10 +11,18 @@ class Image(db.Model):
 
     recipe = db.relationship('Recipe', back_populates='images')
 
+    @property
+    def url(self):
+        bucket = storage.bucket()
+        blob = bucket.blob(f'images/recipes/{self.src}')
+        blob.make_public()
+
+        return blob.public_url
+
     def to_dict(self):
         return {
             'id': self.id,
             'order': self.order,
             'description': self.description,
-            'src': self.src
+            'url': self.url
         }

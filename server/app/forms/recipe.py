@@ -4,6 +4,13 @@ from wtforms import BooleanField, FieldList, FormField, IntegerField, StringFiel
 from wtforms.validators import DataRequired, Optional
 
 
+class ImageForm(Form):
+    id = IntegerField(validators=[Optional()])
+    order = IntegerField(validators=[DataRequired()])
+    description = StringField(validators=[DataRequired()])
+    string64 = StringField(validators=[DataRequired()])
+
+
 class IngredientForm(Form):
     id = IntegerField(validators=[Optional()])
     name = StringField(validators=[DataRequired()])
@@ -20,3 +27,4 @@ class RecipesForm(FlaskForm):
     description = StringField(validators=[Optional()])
     ingredients = FieldList(FormField(IngredientForm), min_entries=1)
     instructions = FieldList(FormField(InstructionForm), min_entries=1)
+    images = FieldList(FormField(ImageForm), validators=[Optional()])

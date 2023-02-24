@@ -1,7 +1,10 @@
+from base64 import b64decode
+from uuid import uuid4
+from firebase_admin import storage
 from flask import Blueprint, request
 from flask_login import login_required
 from app.forms import IngredientsForm, RecipesForm
-from app.models import db, Ingredient, Instruction, Recipe, User
+from app.models import db, Image, Ingredient, Instruction, Recipe, User
 
 users = Blueprint('users', __name__)
 
@@ -83,19 +86,38 @@ def add_recipe(user_id):
 
             return Instruction(order=order, body=body)
 
+        def create_image(data):
+            order = data.get('order')
+            description = data.get('description')
+            string64 = data.get('string64')
+
+            bucket = storage.bucket()
+            uuid = uuid4()
+            code = b64decode(string64)
+
+            blob = bucket.blob(f'images/recipes/{uuid}')
+            blob.upload_from_string(code, content_type='image/png')
+
+            return Image(order=order, description=description, src=uuid)
+
         ingredients = [get_ingredient_from_db(data)
                        for data in form.data.get('ingredients')]
 
         instructions = [create_instruction(data)
                         for data in form.data.get('instructions')]
 
-        recipe = Recipe(name=form.data.get('name'),
-                        description=form.data.get('description'))
+        images = [create_image(data) for data in form.data.get(
+            'images')] if len(form.data.get('images')) else []
 
-        recipe.ingredients = ingredients
-        recipe.instructions = instructions
+        recipe = Recipe(
+            name=form.data.get('name'),
+            description=form.data.get('description'),
+            ingredients=ingredients,
+            instructions=instructions,
+            images=images
+        )
+
         user.recipes.append(recipe)
-
         db.session.commit()
 
         return {'recipe': recipe.to_dict()}

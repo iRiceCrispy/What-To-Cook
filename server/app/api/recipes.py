@@ -1,7 +1,11 @@
+from base64 import b64decode
+from uuid import uuid4
+from firebase_admin import storage
 from flask import Blueprint, request
 from flask_login import login_required
+from sqlalchemy import desc
 from app.forms import RecipesForm, RecipeLikesForm, RecipeViewsForm
-from app.models import db, Ingredient, Instruction, Recipe, User
+from app.models import db, Image, Ingredient, Instruction, Recipe, User
 
 recipes = Blueprint('recipes', __name__)
 
@@ -52,16 +56,50 @@ def update(id):
 
             return instruction
 
+        def get_image_from_db(data):
+            id = data.get('id')
+            order = data.get('order')
+            description = data.get('description')
+            string64 = data.get('string64')
+
+            if (id is not None):
+                image = db.session.get(Image, id)
+                image.order = order
+                image.description = description
+
+                return image
+            else:
+                bucket = storage.bucket()
+                uuid = uuid4()
+                code = b64decode(string64)
+
+                blob = bucket.blob(f'images/recipes/{uuid}')
+                blob.upload_from_string(code, content_type='image/png')
+
+                return Image(order=order, description=description, src=uuid)
+
         ingredients = [get_ingredient_from_db(data)
                        for data in form.data.get('ingredients')]
 
         instructions = [get_instruction_from_db(data)
                         for data in form.data.get('instructions')]
 
+        images = [get_image_from_db(data) for data in form.data.get(
+            'images')] if len(form.data.get('images')) else []
+
+        for recipe_image in recipe.images:
+            removed = not any(recipe_image.id == image.id for image in images)
+
+            if (removed):
+                bucket = storage.bucket()
+                blob = bucket.blob(f'images/recipes/{recipe_image.src}')
+                blob.delete()
+
         recipe.name = name
         recipe.description = description
         recipe.ingredients = ingredients
         recipe.instructions = instructions
+        recipe.images = images
 
         db.session.commit()
 
