@@ -8,7 +8,7 @@ class ImageForm(Form):
     id = IntegerField(validators=[Optional()])
     order = IntegerField(validators=[DataRequired()])
     description = StringField(validators=[DataRequired()])
-    string64 = StringField(validators=[DataRequired()])
+    data_url = StringField(validators=[DataRequired()])
 
 
 class IngredientForm(Form):

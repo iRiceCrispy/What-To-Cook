@@ -60,7 +60,6 @@ def update(id):
             id = data.get('id')
             order = data.get('order')
             description = data.get('description')
-            string64 = data.get('string64')
 
             if (id is not None):
                 image = db.session.get(Image, id)
@@ -69,12 +68,16 @@ def update(id):
 
                 return image
             else:
+                data_url = data.get('data_url')
+                header, body = data_url.split(';base64,', 1)
+                content_type = header.split('data:')[1]
+
                 bucket = storage.bucket()
                 uuid = uuid4()
-                code = b64decode(string64)
+                code = b64decode(body)
 
                 blob = bucket.blob(f'images/recipes/{uuid}')
-                blob.upload_from_string(code, content_type='image/png')
+                blob.upload_from_string(code, content_type=content_type)
 
                 return Image(order=order, description=description, src=uuid)
 
