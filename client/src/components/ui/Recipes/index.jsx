@@ -30,7 +30,7 @@ const Recipes = ({ recipes, hideUser }) => {
               sx={{ height: 1 }}
             >
               <CardMedia
-                component="div"
+                image={recipe.images[0]?.url}
                 title={recipe.name}
                 sx={{
                   height: 0.5,
