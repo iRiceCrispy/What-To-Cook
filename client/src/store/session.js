@@ -67,8 +67,20 @@ export const logout = createAsyncThunk(
   },
 );
 
+export const fetchLikedRecipes = createAsyncThunk(
+  'session/likedRecipes/get',
+  async (_, { getState }) => {
+    const { id } = getState().session.user;
+
+    const res = await axios.get(`/api/users/${id}/liked_recipes`);
+
+    return res.data.recipes;
+  },
+);
+
 const initialState = {
   user: null,
+  likedRecipes: [],
 };
 
 const sessionSlice = createSlice({
@@ -93,10 +105,14 @@ const sessionSlice = createSlice({
       })
       .addCase(demo.fulfilled, (state, action) => {
         state.user = action.payload;
+      })
+      .addCase(fetchLikedRecipes.fulfilled, (state, { payload }) => {
+        state.likedRecipes = payload;
       });
   },
 });
 
 export const getSessionUser = state => state.session.user;
+export const getLikedRecipes = state => state.session.likedRecipes;
 
 export default sessionSlice.reducer;

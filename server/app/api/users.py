@@ -1,7 +1,10 @@
+from base64 import b64decode
+from uuid import uuid4
+from firebase_admin import storage
 from flask import Blueprint, request
 from flask_login import login_required
 from app.forms import IngredientsForm, RecipesForm
-from app.models import db, Ingredient, Instruction, Recipe, User
+from app.models import db, Image, Ingredient, Instruction, Recipe, User
 
 users = Blueprint('users', __name__)
 
@@ -83,24 +86,57 @@ def add_recipe(user_id):
 
             return Instruction(order=order, body=body)
 
+        def create_image(data):
+            order = data.get('order')
+            description = data.get('description')
+            data_url = data.get('data_url')
+            header, body = data_url.split(';base64,', 1)
+            content_type = header.split('data:')[1]
+
+            bucket = storage.bucket()
+            uuid = uuid4()
+            code = b64decode(body)
+
+            blob = bucket.blob(f'images/recipes/{uuid}')
+            blob.upload_from_string(code, content_type=content_type)
+
+            return Image(order=order, description=description, src=uuid)
+
         ingredients = [get_ingredient_from_db(data)
                        for data in form.data.get('ingredients')]
 
         instructions = [create_instruction(data)
                         for data in form.data.get('instructions')]
 
-        recipe = Recipe(name=form.data.get('name'),
-                        description=form.data.get('description'))
+        images = [create_image(data) for data in form.data.get(
+            'images')] if len(form.data.get('images')) else []
 
-        recipe.ingredients = ingredients
-        recipe.instructions = instructions
+        recipe = Recipe(
+            name=form.data.get('name'),
+            description=form.data.get('description'),
+            ingredients=ingredients,
+            instructions=instructions,
+            images=images
+        )
+
         user.recipes.append(recipe)
-
         db.session.commit()
 
         return {'recipe': recipe.to_dict()}
     else:
         return {'errors': form.errors}, 401
+
+
+@users.get('/<int:user_id>/liked_recipes')
+def get_user(user_id):
+    """
+    Get a user's details
+    """
+    user = db.session.get(User, user_id)
+    if user:
+        return {'recipes': user.to_dict().get('liked_recipes')}
+    else:
+        return {'message': 'User not found.'}, 404
 
 
 @users.before_request

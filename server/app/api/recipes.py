@@ -1,7 +1,11 @@
+from base64 import b64decode
+from uuid import uuid4
+from firebase_admin import storage
 from flask import Blueprint, request
 from flask_login import login_required
-from app.forms import RecipesForm
-from app.models import db, Ingredient, Instruction, Recipe
+from sqlalchemy import desc
+from app.forms import RecipesForm, RecipeLikesForm, RecipeViewsForm
+from app.models import db, Image, Ingredient, Instruction, Recipe, User
 
 recipes = Blueprint('recipes', __name__)
 
@@ -52,16 +56,53 @@ def update(id):
 
             return instruction
 
+        def get_image_from_db(data):
+            id = data.get('id')
+            order = data.get('order')
+            description = data.get('description')
+
+            if (id is not None):
+                image = db.session.get(Image, id)
+                image.order = order
+                image.description = description
+
+                return image
+            else:
+                data_url = data.get('data_url')
+                header, body = data_url.split(';base64,', 1)
+                content_type = header.split('data:')[1]
+
+                bucket = storage.bucket()
+                uuid = uuid4()
+                code = b64decode(body)
+
+                blob = bucket.blob(f'images/recipes/{uuid}')
+                blob.upload_from_string(code, content_type=content_type)
+
+                return Image(order=order, description=description, src=uuid)
+
         ingredients = [get_ingredient_from_db(data)
                        for data in form.data.get('ingredients')]
 
         instructions = [get_instruction_from_db(data)
                         for data in form.data.get('instructions')]
 
+        images = [get_image_from_db(data) for data in form.data.get(
+            'images')] if len(form.data.get('images')) else []
+
+        for recipe_image in recipe.images:
+            removed = not any(recipe_image.id == image.id for image in images)
+
+            if (removed):
+                bucket = storage.bucket()
+                blob = bucket.blob(f'images/recipes/{recipe_image.src}')
+                blob.delete()
+
         recipe.name = name
         recipe.description = description
         recipe.ingredients = ingredients
         recipe.instructions = instructions
+        recipe.images = images
 
         db.session.commit()
 
@@ -82,3 +123,72 @@ def delete(id):
     db.session.commit()
 
     return {'message': 'Recipe deleted'}
+
+
+@recipes.post('/<int:id>/likes')
+@login_required
+def add_like(id):
+    """
+    Adds a like to a recipe
+    """
+    form = RecipeLikesForm()
+    form.process(data=request.json)
+    form.csrf_token.data = request.cookies.get('csrf_token')
+
+    if form.validate_on_submit():
+        user_id = form.data.get('user_id')
+
+        recipe = db.session.get(Recipe, id)
+        user = db.session.get(User, user_id)
+
+        recipe.likes.append(user)
+
+        db.session.commit()
+
+    return {'likes': recipe.to_dict().get('likes')}
+
+
+@recipes.delete('/<int:id>/likes')
+@login_required
+def remove_like(id):
+    """
+    Removes a like from a recipe
+    """
+    form = RecipeLikesForm()
+    form.process(data=request.json)
+    form.csrf_token.data = request.cookies.get('csrf_token')
+
+    if form.validate_on_submit():
+        user_id = form.data.get('user_id')
+
+        recipe = db.session.get(Recipe, id)
+        user = db.session.get(User, user_id)
+
+        recipe.likes.remove(user)
+
+        db.session.commit()
+
+    return {'likes': recipe.to_dict().get('likes')}
+
+
+@recipes.post('/<int:id>/views')
+def increase_views(id):
+    """
+    Increase view count of a recipe by 1
+    """
+    form = RecipeViewsForm()
+    form.csrf_token.data = request.cookies.get('csrf_token')
+
+    if form.validate_on_submit():
+        recipe = db.session.get(Recipe, id)
+
+        recipe.views += 1
+
+        db.session.commit()
+
+        if recipe:
+            return {'views': recipe.views}
+        else:
+            return {'message': 'recipe not found.'}, 404
+    else:
+        return {'errors': form.errors}, 401

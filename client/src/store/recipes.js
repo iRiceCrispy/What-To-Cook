@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { createAsyncThunk, createEntityAdapter, createSlice } from '@reduxjs/toolkit';
+import { fetchLikedRecipes } from './session';
 
 export const getRecipes = createAsyncThunk(
   'recipes/get',
@@ -48,6 +49,37 @@ export const removeRecipe = createAsyncThunk(
   },
 );
 
+export const likeRecipe = createAsyncThunk(
+  'recipes/likes/add',
+  async ({ id, userId }, { dispatch }) => {
+    const res = await axios.post(`/api/recipes/${id}/likes`, { userId });
+
+    await dispatch(fetchLikedRecipes());
+
+    return { id, changes: { likes: res.data.likes } };
+  },
+);
+
+export const unlikeRecipe = createAsyncThunk(
+  'recipes/likes/remove',
+  async ({ id, userId }, { dispatch }) => {
+    const res = await axios.delete(`/api/recipes/${id}/likes`, { data: { userId } });
+
+    await dispatch(fetchLikedRecipes());
+
+    return { id, changes: { likes: res.data.likes } };
+  },
+);
+
+export const increaseRecipeViewCount = createAsyncThunk(
+  'recipes/views/increase',
+  async (id) => {
+    const res = await axios.post(`/api/recipes/${id}/views`);
+
+    return { id, changes: { views: res.data.views } };
+  },
+);
+
 const recipesAdapter = createEntityAdapter();
 const initialState = recipesAdapter.getInitialState();
 
@@ -64,11 +96,23 @@ const recipesSlice = createSlice({
         recipesAdapter.upsertOne(state, payload);
       })
       .addCase(removeRecipe.fulfilled, (state, { payload }) => {
-        recipesAdapter.removeOne(state, { payload });
+        recipesAdapter.removeOne(state, payload);
+      })
+      .addCase(likeRecipe.fulfilled, (state, { payload }) => {
+        recipesAdapter.updateOne(state, payload);
+      })
+      .addCase(unlikeRecipe.fulfilled, (state, { payload }) => {
+        recipesAdapter.updateOne(state, payload);
+      })
+      .addCase(increaseRecipeViewCount.fulfilled, (state, { payload }) => {
+        recipesAdapter.updateOne(state, payload);
       });
   },
 });
 
 export const recipesSelectors = recipesAdapter.getSelectors(state => state.recipes);
+
+export const getRecipesByUser = (state, user) => recipesSelectors
+  .selectAll(state).filter(recipe => recipe.user.id === user?.id);
 
 export default recipesSlice.reducer;

@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Box, Button, Container, List, ListItem, ListItemText, Link, Typography } from '@mui/material';
-import { recipesSelectors, removeRecipe } from '../../../store/recipes';
-import { getSessionUser } from '../../../store/session';
+import { Box, Button, Container, IconButton, ImageList, ImageListItem, List, ListItem, ListItemText, Link, Typography } from '@mui/material';
+import { ThumbUp, Visibility } from '@mui/icons-material';
+import { increaseRecipeViewCount, likeRecipe, recipesSelectors, removeRecipe, unlikeRecipe } from '../../../store/recipes';
+import { getSessionUser, getLikedRecipes } from '../../../store/session';
 import { pantrySelectors } from '../../../store/pantry';
 
 const RecipeDetails = () => {
@@ -13,12 +14,31 @@ const RecipeDetails = () => {
   const sessionUser = useSelector(getSessionUser);
   const pantry = useSelector(pantrySelectors.selectAll);
   const recipe = useSelector(state => recipesSelectors.selectById(state, id));
+  const isLikedByUser = useSelector(getLikedRecipes).includes(Number(id));
   const isOwner = recipe?.user.id === sessionUser?.id;
 
   const handleDelete = () => {
     dispatch(removeRecipe(id));
     navigate('/dashboard');
   };
+
+  const handleLike = () => {
+    if (!isLikedByUser) {
+      dispatch(likeRecipe({ id, userId: sessionUser.id }));
+    }
+    else {
+      dispatch(unlikeRecipe({ id, userId: sessionUser.id }));
+    }
+  };
+
+  useEffect(() => {
+    const time = 5000;
+    const timer = setTimeout(() => {
+      dispatch(increaseRecipeViewCount(id));
+    }, time);
+
+    return () => clearTimeout(timer);
+  }, [dispatch, id]);
 
   return (
     <Box sx={{
@@ -29,14 +49,55 @@ const RecipeDetails = () => {
     >
       {recipe ? (
         <>
-          <Box
-            elevation={0}
-            sx={{
-              height: 350,
-              bgcolor: '#ccc',
-            }}
-          />
-          <Container sx={{ width: 0.75 }}>
+          {recipe.images.length ? (
+            <ImageList
+              cols={recipe.images.length > 3 ? 3 : recipe.images.length}
+              rowHeight={350}
+              sx={{
+                height: 350,
+                maxHeight: 400,
+                mt: 0,
+              }}
+            >
+              {recipe.images?.map(image => (
+                <ImageListItem
+                  key={image.id}
+                >
+                  <img
+                    src={image.url}
+                    alt={image.description}
+                    style={{
+                      height: 350,
+                      objectFit: 'cover',
+                    }}
+                  />
+                </ImageListItem>
+              ))}
+            </ImageList>
+          ) : (
+            <Box
+              sx={{
+                height: 350,
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                bgcolor: '#ccc',
+              }}
+            >
+              <Typography
+                component="p"
+                variant="h2"
+                align="center"
+              >
+                No Images
+              </Typography>
+            </Box>
+          )}
+          <Container sx={{
+            mt: 6,
+            width: 0.75,
+          }}
+          >
             <Typography component="h1" variant="h4">{recipe.name}</Typography>
             <Typography component="h2" variant="h6">{recipe.description || 'No description'}</Typography>
             {isOwner && (
@@ -45,6 +106,30 @@ const RecipeDetails = () => {
               <Button variant="contained" onClick={handleDelete}>Delete</Button>
             </Box>
             )}
+            <Box sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '2px',
+            }}
+            >
+              <Typography>{recipe.likes}</Typography>
+              <IconButton
+                disabled={!sessionUser}
+                color={isLikedByUser ? 'success' : 'default'}
+                onClick={handleLike}
+              >
+                <ThumbUp />
+              </IconButton>
+              <Box sx={{
+                display: 'flex',
+                justfiyContent: 'center',
+                gap: 0.5,
+              }}
+              >
+                <Typography>{recipe.views}</Typography>
+                <Visibility />
+              </Box>
+            </Box>
             <Typography variant="body2">
               You have
               {' '}

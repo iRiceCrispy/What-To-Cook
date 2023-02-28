@@ -1,17 +1,32 @@
 import React from 'react';
-import { Container } from '@mui/material';
+import { useSelector } from 'react-redux';
+import { Container, Typography } from '@mui/material';
+import { getRecipesByUser } from '../../store/recipes';
+import { getSessionUser } from '../../store/session';
 import Recipes from '../../components/ui/Recipes';
 import MainLayout from '../../layouts/MainLayout';
 
-const Dashboard = () => (
-  <MainLayout>
-    <Container
-      disableGutters
-      sx={{ p: 8 }}
-    >
-      <Recipes />
-    </Container>
-  </MainLayout>
-);
+const Dashboard = () => {
+  const sessionUser = useSelector(getSessionUser);
+  const recipes = useSelector(state => getRecipesByUser(state, sessionUser));
+
+  return (
+    <MainLayout>
+      <Container
+        disableGutters
+        sx={{
+          p: 8,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: 4,
+        }}
+      >
+        <Typography component="h1" variant="h4">My Recipes</Typography>
+        <Recipes hideUser recipes={recipes} />
+      </Container>
+    </MainLayout>
+  );
+};
 
 export default Dashboard;

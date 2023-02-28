@@ -1,93 +1,105 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { Box, Card, CardActionArea, CardContent, CardMedia, Grid, Link, Typography } from '@mui/material';
-import { recipesSelectors } from '../../../store/recipes';
+import { ThumbUp, Visibility } from '@mui/icons-material';
 import { pantrySelectors } from '../../../store/pantry';
 
-const Recipes = () => {
+const Recipes = ({ recipes, hideUser }) => {
   const pantry = useSelector(pantrySelectors.selectAll);
-  const recipes = useSelector(recipesSelectors.selectAll);
 
   return (
-    <Box
+    <Grid
+      container
       sx={{
-        height: 1,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        flexGrow: 1,
-        overflow: 'auto',
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fill, 250px)',
+        justifyContent: 'center',
+        gap: 2,
       }}
     >
-      <Typography component="h1" variant="h4">Recipes:</Typography>
-      <Grid
-        container
-        sx={{
-          mt: 6,
-          pb: 1,
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, 250px)',
-          justifyContent: 'center',
-          gap: 2,
-        }}
-      >
-        {recipes.map(recipe => (
-          <Grid item key={recipe.id}>
-            <Card sx={{
-              height: 300,
-              width: 250,
-            }}
+      {recipes.map(recipe => (
+        <Grid item key={recipe.id}>
+          <Card sx={{
+            height: 300,
+            width: 250,
+          }}
+          >
+            <CardActionArea
+              component={Link}
+              to={`/recipes/${recipe.id}`}
+              sx={{ height: 1 }}
             >
-              <CardActionArea
-                component={Link}
-                to={`/recipes/${recipe.id}`}
-                sx={{ height: 1 }}
-              >
-                <CardMedia
-                  component="div"
-                  title={recipe.name}
-                  sx={{
-                    height: 0.5,
-                    bgcolor: '#ccc',
-                  }}
-                />
-                <CardContent sx={{
+              <CardMedia
+                image={recipe.images[0]?.url}
+                title={recipe.name}
+                sx={{
                   height: 0.5,
+                  bgcolor: '#ccc',
+                }}
+              />
+              <CardContent sx={{
+                height: 0.5,
+                display: 'flex',
+                flexDirection: 'column',
+              }}
+              >
+                <Typography variant="h6">{recipe.name}</Typography>
+                <Typography variant="body2">{recipe.description}</Typography>
+                <Box sx={{
+                  mt: 'auto',
                   display: 'flex',
-                  flexDirection: 'column',
+                  justifyContent: 'end',
+                  alignItems: 'center',
+                  gap: 1,
                 }}
                 >
-                  <Typography variant="h6">{recipe.name}</Typography>
-                  <Typography variant="body2">{recipe.description}</Typography>
-                  <Typography
-                    variant="body2"
-                    sx={{ mt: 'auto' }}
-                  >
-                    By:
-                    {' '}
-                    {recipe.user.username}
-                  </Typography>
+                  {!hideUser && (
+                    <Typography
+                      variant="body2"
+                      sx={{ mr: 'auto' }}
+                    >
+                      By:
+                      {' '}
+                      {recipe.user.username}
+                    </Typography>
+                  )}
                   <Box sx={{
-                    position: 'absolute',
-                    top: 8,
-                    right: 8,
+                    display: 'flex',
+                    gap: '2px',
                   }}
                   >
-                    <Typography variant="body2">
-                      {' '}
-                      {recipe.ingredients.filter(i => pantry.some(pi => pi.id === i.id)).length}
-                      /
-                      {recipe.ingredients.length}
-                      {' '}
-                    </Typography>
+                    <Typography>{recipe.likes}</Typography>
+                    <ThumbUp fontSize="small" />
                   </Box>
-                </CardContent>
-              </CardActionArea>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
-    </Box>
+                  <Box sx={{
+                    display: 'flex',
+                    gap: '2px',
+                  }}
+                  >
+                    <Typography>{recipe.views}</Typography>
+                    <Visibility fontSize="small" />
+                  </Box>
+                </Box>
+                <Box sx={{
+                  position: 'absolute',
+                  top: 8,
+                  right: 8,
+                }}
+                >
+                  <Typography variant="body2">
+                    {' '}
+                    {recipe.ingredients.filter(i => pantry.some(pi => pi.id === i.id)).length}
+                    /
+                    {recipe.ingredients.length}
+                    {' '}
+                  </Typography>
+                </Box>
+              </CardContent>
+            </CardActionArea>
+          </Card>
+        </Grid>
+      ))}
+    </Grid>
   );
 };
 

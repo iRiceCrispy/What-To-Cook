@@ -4,6 +4,7 @@ from flask_cors import CORS
 from flask_login import LoginManager
 from flask_migrate import Migrate
 from flask_wtf.csrf import generate_csrf
+from firebase_admin import initialize_app
 from .api import ingredients, recipes, session, users
 from .config import Config
 from .models import db, User
@@ -17,6 +18,10 @@ app.register_blueprint(ingredients, url_prefix='/api/ingredients')
 app.register_blueprint(recipes, url_prefix='/api/recipes')
 app.register_blueprint(session, url_prefix='/api/session')
 app.register_blueprint(users, url_prefix='/api/users')
+
+initialize_app(options={
+    'storageBucket': environ.get('FIREBASE_STORAGE_BUCKET')
+})
 
 login = LoginManager(app)
 db.init_app(app)
