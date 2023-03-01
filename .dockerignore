@@ -1,0 +1,16 @@
+**/.git
+**/.gitignore
+
+**/.eslintrc.json
+
+**/.env*
+
+**/node_modules
+
+**/Pipfile
+**/Pipfile.lock
+
+Dockerfile*
+docker-compose*
+
+README.md
