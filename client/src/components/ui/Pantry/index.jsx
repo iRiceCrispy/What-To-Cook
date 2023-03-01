@@ -1,16 +1,29 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Autocomplete, Box, Button, Chip, Drawer, TextField, Toolbar, Typography } from '@mui/material';
+import { createFilterOptions } from '@mui/material/Autocomplete';
+import { styled } from '@mui/material/styles';
 import { Verified } from '@mui/icons-material';
-import { ingredientsSelectors } from '../../../store/ingredients';
+import { getIngredients, ingredientsSelectors } from '../../../store/ingredients';
 import { getSessionUser } from '../../../store/session';
 import { updatePantry, pantrySelectors } from '../../../store/pantry';
+
+const filter = createFilterOptions();
+
+const Ingredient = styled(Chip)(() => ({
+  '& .MuiChip-icon': {
+    order: 1,
+    marginLeft: -6,
+    marginRight: 5,
+  },
+}));
 
 const Pantry = () => {
   const dispatch = useDispatch();
   const sessionUser = useSelector(getSessionUser);
-  const ingredients = useSelector(ingredientsSelectors.selectAll);
+  const allIngredients = useSelector(ingredientsSelectors.selectAll);
   const pantry = useSelector(pantrySelectors.selectAll);
+  const [ingredientList, setIngredientList] = useState([...allIngredients]);
   const [newPantry, setNewPantry] = useState(pantry);
   const [addList, setAddList] = useState([]);
   const [removeList, setRemoveList] = useState([]);
@@ -25,6 +38,7 @@ const Pantry = () => {
       .then(() => {
         setAddList([]);
         setRemoveList([]);
+        dispatch(getIngredients());
       });
   };
 
@@ -35,6 +49,10 @@ const Pantry = () => {
   };
 
   const addIngredient = (ingredient) => {
+    if (!ingredient.id) {
+      setIngredientList(prev => [...prev, ingredient]);
+    }
+
     if (pantry.some(p => p.name === ingredient.name)) {
       setNewPantry(prev => [...prev, ingredient]);
       setRemoveList(prev => prev.filter(i => i.name !== ingredient.name));
@@ -46,6 +64,10 @@ const Pantry = () => {
   };
 
   const removeIngredient = (ingredient) => {
+    if (!ingredient.id) {
+      setIngredientList(prev => prev.filter(i => i.name !== ingredient.name));
+    }
+
     if (pantry.some(p => p.name === ingredient.name)) {
       setNewPantry(prev => prev.filter(i => i.name !== ingredient.name));
       setRemoveList(prev => [...prev, ingredient]);
@@ -102,12 +124,39 @@ const Pantry = () => {
             multiple
             autoHighlight
             disableClearable
+            freeSolo
             id="searchIngredients"
-            options={ingredients.sort((a, b) => a.name.localeCompare(b.name))}
+            options={ingredientList.sort((a, b) => a.name.localeCompare(b.name))}
+            getOptionLabel={option => option.name}
+            isOptionEqualToValue={(option, value) => option.name === value.name}
+            filterOptions={(options, params) => {
+              const filtered = filter(options, params);
+              const { inputValue } = params;
+              const isExisting = options.some(option => inputValue === option.name);
+
+              if (inputValue !== '' && !isExisting) {
+                filtered.push({
+                  inputValue,
+                  name: `Add "${inputValue}"`,
+                });
+              }
+
+              return filtered;
+            }}
             value={newPantry}
             onChange={(_event, _value, reason, { option }) => {
               if (reason === 'selectOption') {
-                addIngredient(option);
+                if (option.inputValue) {
+                  const newOption = {
+                    name: option.inputValue,
+                    verified: false,
+                  };
+
+                  addIngredient(newOption);
+                }
+                else {
+                  addIngredient(option);
+                }
               }
               else if (reason === 'removeOption') {
                 removeIngredient(option);
@@ -115,14 +164,22 @@ const Pantry = () => {
             }}
             inputValue={input}
             onInputChange={(_event, value) => setInput(value)}
-            getOptionLabel={option => option.name}
-            isOptionEqualToValue={(option, value) => option.name === value.name}
             renderInput={params => (
               <TextField
                 {...params}
                 size="small"
                 placeholder="Search for ingredients"
               />
+            )}
+            renderOption={(props, option) => (
+              <Box
+                {...props}
+                component="li"
+                sx={{ gap: 0.5 }}
+              >
+                {option.name}
+                {option.verified ? <Verified fontSize="small" color="primary" /> : null}
+              </Box>
             )}
             renderTags={() => null}
             sx={{
@@ -158,11 +215,11 @@ const Pantry = () => {
               .map((ingredient) => {
                 if (addList.some(a => a.name === ingredient.name)) {
                   return (
-                    <Chip
+                    <Ingredient
                       key={ingredient.name}
                       component="li"
                       color="success"
-                      icon={ingredient.verified && <Verified fontSize="small" />}
+                      icon={ingredient.verified ? <Verified fontSize="small" /> : null}
                       label={ingredient.name}
                       onClick={() => removeIngredient(ingredient)}
                     />
@@ -170,22 +227,22 @@ const Pantry = () => {
                 }
                 if (removeList.some(r => r.name === ingredient.name)) {
                   return (
-                    <Chip
+                    <Ingredient
                       key={ingredient.name}
                       component="li"
                       color="error"
-                      icon={ingredient.verified && <Verified fontSize="small" />}
+                      icon={ingredient.verified ? <Verified fontSize="small" /> : null}
                       label={ingredient.name}
                       onClick={() => addIngredient(ingredient)}
                     />
                   );
                 }
                 return (
-                  <Chip
+                  <Ingredient
                     key={ingredient.name}
                     component="li"
                     color="primary"
-                    icon={ingredient.verified && <Verified fontSize="small" />}
+                    icon={ingredient.verified ? <Verified fontSize="small" /> : null}
                     label={ingredient.name}
                     onClick={() => removeIngredient(ingredient)}
                   />

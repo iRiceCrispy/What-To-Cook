@@ -2,17 +2,33 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Autocomplete, Button, Box, List, ListItem, IconButton, ImageList, ImageListItem, ImageListItemBar, TextField, Typography } from '@mui/material';
-import { Delete } from '@mui/icons-material';
+import { Autocomplete, Button, Box, Chip, List, ListItem, IconButton, ImageList, ImageListItem, ImageListItemBar, TextField, Typography } from '@mui/material';
+import { createFilterOptions } from '@mui/material/Autocomplete';
+import { styled } from '@mui/material/styles';
+import { Delete, Verified } from '@mui/icons-material';
 import { recipesSelectors, addRecipe, updateRecipe } from '../../store/recipes';
-import { ingredientsSelectors } from '../../store/ingredients';
+import { getIngredients, ingredientsSelectors } from '../../store/ingredients';
+
+const filter = createFilterOptions();
+
+const Ingredient = styled(Chip)(() => ({
+  '& .MuiChip-icon': {
+    order: 1,
+    marginLeft: -10,
+    marginRight: 12,
+  },
+  '& .MuiChip-deleteIcon': {
+    order: 2,
+  },
+}));
 
 const RecipeForm = ({ edit }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { id } = useParams();
-  const ingredientList = useSelector(ingredientsSelectors.selectAll);
+  const allIngredients = useSelector(ingredientsSelectors.selectAll);
   const recipe = useSelector(state => recipesSelectors.selectById(state, id));
+  const [ingredientList, setIngredientList] = useState([...allIngredients]);
   const [name, setName] = useState(edit ? recipe.name : '');
   const [description, setDescription] = useState(edit ? recipe.description : '');
   const [images, setImages] = useState(edit ? recipe.images.map(i => ({ ...i })) : []);
@@ -45,6 +61,7 @@ const RecipeForm = ({ edit }) => {
       dispatch(updateRecipe(newRecipe))
         .unwrap()
         .then((r) => {
+          dispatch(getIngredients());
           navigate(`/recipes/${r.id}`);
         })
         .catch((err) => {
@@ -55,6 +72,7 @@ const RecipeForm = ({ edit }) => {
       dispatch(addRecipe(newRecipe))
         .unwrap()
         .then((r) => {
+          dispatch(getIngredients());
           navigate(`/recipes/${r.id}`);
         })
         .catch((err) => {
@@ -190,14 +208,55 @@ const RecipeForm = ({ edit }) => {
         />
         <Autocomplete
           multiple
+          autoHighlight
+          freeSolo
           id="ingredients"
-          options={ingredientList}
-          value={ingredients}
-          onChange={(e, newValue) => setIngredients(newValue)}
-          inputValue={ingredientInput}
-          onInputChange={(e, newInputValue) => setIngredientInput(newInputValue)}
+          options={ingredientList.sort((a, b) => a.name.localeCompare(b.name))}
           getOptionLabel={option => option.name}
           isOptionEqualToValue={(option, value) => option.name === value.name}
+          filterOptions={(options, params) => {
+            const filtered = filter(options, params);
+            const { inputValue } = params;
+            const isExisting = options.some(option => inputValue === option.name);
+
+            if (inputValue !== '' && !isExisting) {
+              filtered.push({
+                inputValue,
+                name: `Add "${inputValue}"`,
+              });
+            }
+
+            return filtered;
+          }}
+          value={ingredients}
+          onChange={(_event, _value, reason, { option } = {}) => {
+            if (reason === 'selectOption') {
+              if (option.inputValue) {
+                const newOption = {
+                  name: option.inputValue,
+                  verified: false,
+                };
+
+                setIngredientList(prev => [...prev, newOption]);
+                setIngredients(prev => [...prev, newOption]);
+              }
+              else {
+                setIngredients(prev => [...prev, option]);
+              }
+            }
+            else if (reason === 'removeOption') {
+              if (!option.id) {
+                setIngredientList(prev => prev.filter(i => i.name !== option.name));
+              }
+
+              setIngredients(prev => prev.filter(i => i.name !== option.name));
+            }
+            else if (reason === 'clear') {
+              setIngredients([]);
+            }
+          }}
+          inputValue={ingredientInput}
+          onInputChange={(_event, value) => setIngredientInput(value)}
           renderInput={params => (
             <TextField
               {...params}
@@ -206,6 +265,25 @@ const RecipeForm = ({ edit }) => {
               helperText={errors.ingredients ? 'Must have at least one ingredient.' : ''}
             />
           )}
+          renderOption={(props, option) => (
+            <Box
+              {...props}
+              component="li"
+              sx={{ gap: 0.5 }}
+            >
+              {option.name}
+              {option.verified ? <Verified fontSize="small" color="primary" /> : null}
+            </Box>
+          )}
+          renderTags={(value, getTagProps) => value.map((option, index) => (
+            <Ingredient
+              {...getTagProps({ index })}
+              key={index}
+              color="primary"
+              icon={option.verified ? <Verified fontSize="small" /> : null}
+              label={option.name}
+            />
+          ))}
         />
         <Box>
           <List>
