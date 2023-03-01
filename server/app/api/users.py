@@ -49,6 +49,14 @@ def update_pantry(user_id):
                        for data in form.data.get('ingredients')]
 
         user.pantry = ingredients
+
+        unverified_ingredients = db.session.scalars(
+            db.select(Ingredient).where(Ingredient.verified == False)).all()
+
+        for ingredient in unverified_ingredients:
+            if (ingredient.recipe_count == 0 and ingredient.user_count == 0):
+                db.session.delete(ingredient)
+
         db.session.commit()
 
         return {'pantry': user.to_dict().get('pantry')}

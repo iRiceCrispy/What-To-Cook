@@ -104,6 +104,13 @@ def update(id):
         recipe.instructions = instructions
         recipe.images = images
 
+        unverified_ingredients = db.session.scalars(
+            db.select(Ingredient).where(Ingredient.verified == False)).all()
+
+        for ingredient in unverified_ingredients:
+            if (ingredient.recipe_count == 0 and ingredient.user_count == 0):
+                db.session.delete(ingredient)
+
         db.session.commit()
 
         return {'recipe': recipe.to_dict()}
@@ -120,6 +127,14 @@ def delete(id):
     recipe = db.session.get(Recipe, id)
 
     db.session.delete(recipe)
+
+    unverified_ingredients = db.session.scalars(
+        db.select(Ingredient).where(Ingredient.verified == False)).all()
+
+    for ingredient in unverified_ingredients:
+        if (ingredient.recipe_count == 0 and ingredient.user_count == 0):
+            db.session.delete(ingredient)
+
     db.session.commit()
 
     return {'message': 'Recipe deleted'}
