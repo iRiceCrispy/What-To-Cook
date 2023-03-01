@@ -11,7 +11,8 @@ class Recipe(db.Model):
     views = db.Column(db.Integer, server_default='0', nullable=False)
 
     user = db.relationship('User', back_populates='recipes')
-    ingredients = db.relationship('Ingredient', secondary=recipe_ingredient)
+    ingredients = db.relationship(
+        'Ingredient', secondary=recipe_ingredient, back_populates='recipes')
     instructions = db.relationship(
         'Instruction', back_populates='recipe', cascade='all, delete')
     images = db.relationship(
