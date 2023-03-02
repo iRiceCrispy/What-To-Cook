@@ -11,6 +11,7 @@ const store = configureStore({
     pantry,
     recipes,
   },
+  devTools: process.env.NODE_ENV !== 'production',
 });
 
 export default store;
