@@ -27,10 +27,8 @@ const App = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    if (sessionUser) {
-      dispatch(getPantry(sessionUser.id));
-      dispatch(fetchLikedRecipes());
-    }
+    dispatch(getPantry());
+    dispatch(fetchLikedRecipes());
   }, [dispatch, sessionUser]);
 
   return isLoaded && (
