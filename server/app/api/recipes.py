@@ -135,6 +135,11 @@ def delete(id):
         if (ingredient.recipe_count == 0 and ingredient.user_count == 0):
             db.session.delete(ingredient)
 
+    for image in recipe.images:
+        bucket = storage.bucket()
+        blob = bucket.blob(f'images/recipes/{image.src}')
+        blob.delete()
+
     db.session.commit()
 
     return {'message': 'Recipe deleted'}

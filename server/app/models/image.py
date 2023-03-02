@@ -15,7 +15,6 @@ class Image(db.Model):
     def url(self):
         bucket = storage.bucket()
         blob = bucket.blob(f'images/recipes/{self.src}')
-        blob.make_public()
 
         return blob.public_url
 
