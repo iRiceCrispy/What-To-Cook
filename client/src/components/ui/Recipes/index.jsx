@@ -4,6 +4,26 @@ import { Box, Card, CardActionArea, CardContent, CardMedia, Grid, Link, Typograp
 import { ThumbUp, Visibility } from '@mui/icons-material';
 import { pantrySelectors } from '../../../store/pantry';
 
+const DefaultImage = () => (
+  <Box
+    sx={{
+      height: 0.5,
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      bgcolor: '#ccc',
+    }}
+  >
+    <Typography
+      component="p"
+      variant="h5"
+      align="center"
+    >
+      No Image
+    </Typography>
+  </Box>
+);
+
 const Recipes = ({ recipes, hideUser }) => {
   const pantry = useSelector(pantrySelectors.selectAll);
 
@@ -19,10 +39,12 @@ const Recipes = ({ recipes, hideUser }) => {
     >
       {recipes.map(recipe => (
         <Grid item key={recipe.id}>
-          <Card sx={{
-            height: 300,
-            width: 250,
-          }}
+          <Card
+            raised
+            sx={{
+              height: 300,
+              width: 250,
+            }}
           >
             <CardActionArea
               component={Link}
@@ -30,6 +52,7 @@ const Recipes = ({ recipes, hideUser }) => {
               sx={{ height: 1 }}
             >
               <CardMedia
+                component={recipe.images.length ? 'img' : DefaultImage}
                 image={recipe.images[0]?.url}
                 title={recipe.name}
                 sx={{
