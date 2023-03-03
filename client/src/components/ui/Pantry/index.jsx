@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
 import { Autocomplete, Box, Button, Chip, Drawer, TextField, Toolbar, Typography } from '@mui/material';
 import { createFilterOptions } from '@mui/material/Autocomplete';
 import { styled } from '@mui/material/styles';
@@ -263,20 +264,32 @@ const Pantry = () => {
             gap: 1,
           }}
           >
-            <Button
-              variant="contained"
-              onClick={confirm}
-              sx={{ width: 1 }}
-            >
-              Confirm
-            </Button>
-            <Button
-              variant="contained"
-              onClick={cancel}
-              sx={{ width: 1 }}
-            >
-              Cancel
-            </Button>
+            {sessionUser ? (
+              <>
+                <Button
+                  variant="contained"
+                  onClick={confirm}
+                  sx={{ width: 1 }}
+                >
+                  Confirm
+                </Button>
+                <Button
+                  variant="contained"
+                  onClick={cancel}
+                  sx={{ width: 1 }}
+                >
+                  Cancel
+                </Button>
+              </>
+            ) : (
+              <Button
+                variant="contained"
+                component={Link}
+                to="/login"
+              >
+                Login to save your ingredients
+              </Button>
+            )}
           </Box>
         )}
       </Box>
