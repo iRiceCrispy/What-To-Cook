@@ -98,7 +98,15 @@ const RecipeDetails = () => {
             width: 0.75,
           }}
           >
-            <Typography component="h1" variant="h4">{recipe.name}</Typography>
+            <Typography
+              component="h1"
+              variant="h4"
+              sx={{
+                overflowWrap: 'break-word',
+              }}
+            >
+              {recipe.name}
+            </Typography>
             <Typography component="h2" variant="h6">{recipe.description || 'No description'}</Typography>
             {isOwner && (
             <Box>
