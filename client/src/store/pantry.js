@@ -3,10 +3,16 @@ import { createAsyncThunk, createEntityAdapter, createSlice } from '@reduxjs/too
 
 export const getPantry = createAsyncThunk(
   'pantry/get',
-  async (userId) => {
-    const res = await axios.get(`/api/users/${userId}/pantry`);
+  async (_, { getState }) => {
+    const { user } = getState().session;
 
-    return res.data.pantry;
+    if (user) {
+      const res = await axios.get(`/api/users/${user.id}/pantry`);
+
+      return res.data.pantry;
+    }
+
+    return [];
   },
 );
 

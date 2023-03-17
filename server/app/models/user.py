@@ -11,7 +11,8 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(320), unique=True, nullable=False)
     hashed_password = db.Column(db.String(255), nullable=False)
 
-    pantry = db.relationship('Ingredient', secondary=pantry)
+    pantry = db.relationship(
+        'Ingredient', secondary=pantry, back_populates='users')
     recipes = db.relationship('Recipe', back_populates='user')
     liked_recipes = db.relationship(
         'Recipe', secondary=recipe_like, back_populates='likes')

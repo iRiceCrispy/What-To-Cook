@@ -70,11 +70,15 @@ export const logout = createAsyncThunk(
 export const fetchLikedRecipes = createAsyncThunk(
   'session/likedRecipes/get',
   async (_, { getState }) => {
-    const { id } = getState().session.user;
+    const { user } = getState().session;
 
-    const res = await axios.get(`/api/users/${id}/liked_recipes`);
+    if (user) {
+      const res = await axios.get(`/api/users/${user.id}/liked_recipes`);
 
-    return res.data.recipes;
+      return res.data.recipes;
+    }
+
+    return [];
   },
 );
 
